@@ -42,17 +42,17 @@ calclist: /* nothing */
  | calclist EOL { printf("> "); } /* blank line or a comment */
  ;
 
-exp: exp '+' exp { $$ = new ast('+', $1, $3); }
-   | exp '-' exp { $$ = new ast('-', $1, $3); }
-   | exp '*' exp { $$ = new ast('*', $1, $3); }
-   | exp '/' exp { $$ = new ast('/', $1, $3); }
+exp: exp '+' exp { $$ = new ast(make_integer_value('+'), $1, $3); }
+   | exp '-' exp { $$ = new ast(make_integer_value('-'), $1, $3); }
+   | exp '*' exp { $$ = new ast(make_integer_value('*'), $1, $3); }
+   | exp '/' exp { $$ = new ast(make_integer_value('/'), $1, $3); }
    | '(' exp ')' { $$ = $2; }
-   | '-' exp     { $$ = new ast('M', $2, nullptr); }
-   | NUMBER      { $$ = new ast($1, nullptr, nullptr); }
+   | '-' exp     { $$ = new ast(make_integer_value('M'), $2, nullptr); }
+   | NUMBER      { $$ = new ast(make_integer_value($1), nullptr, nullptr); }
  ;
 
  assignment: IDENT '=' exp {
-  $$ = new ast('=', nullptr, $3);
+  $$ = new ast(make_integer_value('='), nullptr, $3);
  }
 
  %%

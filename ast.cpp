@@ -4,7 +4,7 @@
 #include "ast.h"
 #include "env.h"
 
-ast::ast(int value, ast *l, ast *r) {
+ast::ast(Value value, ast *l, ast *r) {
   this->value = value;
   this->l = l;
   this->r = r;
@@ -12,7 +12,7 @@ ast::ast(int value, ast *l, ast *r) {
 
 int ast::eval()
 {
-  switch(this->value) {
+  switch(this->value.d) {
     case '+':
       return this->l->eval() + this->r->eval();
     case '-':
@@ -27,12 +27,12 @@ int ast::eval()
     case 'M':
       return -this->l->eval();
   }
-  return this->value;
+  return this->value.d;
 }
 
 void treefree(ast *a)
 {
-  int val = a->value;
+  int val = a->value.d;
   if (val == '+' || val == '-' || val == '*' || val == '/') {
     treefree(a->l);
     treefree(a->r);
@@ -43,4 +43,18 @@ void treefree(ast *a)
   else {
     delete a;
   }
+}
+
+Value make_integer_value(int d) {
+  Value v;
+  v.vt = ValueType::Integer;
+  v.d = d;
+  return v;
+}
+
+Value make_string_value(char *s) {
+  Value v;
+  v.vt = ValueType::String;
+  v.s = s;
+  return v;
 }

@@ -6,14 +6,25 @@
 extern int yylineno; /* from lexer */
 void yyerror(const char *, ...);
 
+enum class ValueType { String, Integer };
+
+struct Value {
+    ValueType vt;
+    union {
+        char *s;
+        int d;
+    };
+};
+
+Value make_integer_value(int);
+
 /* nodes in the abstract syntax tree */
 struct ast {
-  char *id;
-  int value;
+  Value value;
   ast *l;
   ast *r;
 
-  ast(int ,ast *, ast*);
+  ast(Value ,ast *, ast*);
   int eval();
 };
 

@@ -1,0 +1,21 @@
+
+enum class ValueType { String, Integer };
+
+struct Value {
+    ValueType vt;
+    union v {
+        char *s;
+        int d;
+    };
+};
+
+Value make_integer_value(int d) {
+    v = Value;
+    
+}
+
+struct ast {
+    Value v;
+    ast *l;
+    ast *r;
+};
