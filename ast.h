@@ -8,6 +8,7 @@ void yyerror(const char *, ...);
 
 /* nodes in the abstract syntax tree */
 struct ast {
+  char *id;
   int value;
   ast *l;
   ast *r;

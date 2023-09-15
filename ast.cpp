@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "ast.h"
+#include "env.h"
 
 ast::ast(int value, ast *l, ast *r) {
   this->value = value;
@@ -20,6 +21,9 @@ int ast::eval()
       return this->l->eval() * this->r->eval();
     case '/':
       return this->l->eval() / this->r->eval();
+    case '=':
+      printf("assignement to %d\n", this->r->eval());
+      return 0;
     case 'M':
       return -this->l->eval();
   }
@@ -28,8 +32,6 @@ int ast::eval()
 
 void treefree(ast *a)
 {
-  printf("freeing tree of type/value %c\n", a->value);
-
   int val = a->value;
   if (val == '+' || val == '-' || val == '*' || val == '/') {
     treefree(a->l);
