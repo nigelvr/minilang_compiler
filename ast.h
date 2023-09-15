@@ -17,6 +17,7 @@ struct Value {
 };
 
 Value make_integer_value(int);
+Value make_string_value(char *);
 
 /* nodes in the abstract syntax tree */
 struct ast {

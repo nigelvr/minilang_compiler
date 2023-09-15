@@ -22,7 +22,7 @@ int ast::eval()
     case '/':
       return this->l->eval() / this->r->eval();
     case '=':
-      printf("assignement to %d\n", this->r->eval());
+      printf("assignment %s = %d\n", this->l->value.s, this->r->eval());
       return 0;
     case 'M':
       return -this->l->eval();

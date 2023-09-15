@@ -27,6 +27,7 @@ extern int yylex();
 
 %type <a> exp
 %type <a> assignment
+%type <a> assignment_lhs
 
 %%
 calclist: /* nothing */
@@ -51,8 +52,12 @@ exp: exp '+' exp { $$ = new ast(make_integer_value('+'), $1, $3); }
    | NUMBER      { $$ = new ast(make_integer_value($1), nullptr, nullptr); }
  ;
 
- assignment: IDENT '=' exp {
-  $$ = new ast(make_integer_value('='), nullptr, $3);
+ assignment: assignment_lhs '=' exp ';' {
+  $$ = new ast(make_integer_value('='), $1, $3);
+ }
+
+ assignment_lhs: IDENT {
+  $$ = new ast(make_string_value($1), nullptr, nullptr);
  }
 
  %%

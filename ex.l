@@ -16,6 +16,7 @@ EXP     ([Ee][-+]?[0-9]+)
 "/" |
 "(" |
 "=" |
+";" |
 ")"     { return yytext[0]; }
 [0-9]+ { yylval.d = atoi(yytext); return NUMBER; }
 
