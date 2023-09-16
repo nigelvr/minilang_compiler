@@ -46,6 +46,7 @@ exp: exp '+' exp { $$ = new BinOpAST(make_integer_value('+'), $1, $3); }
    | '(' exp ')' { $$ = $2; }
    | '-' exp     { $$ = new BinOpAST(make_integer_value('M'), $2, nullptr); }
    | NUMBER      { $$ = new BinOpAST(make_integer_value($1), nullptr, nullptr); }
+   | IDENT       { $$ = new BinOpAST(make_string_value($1), nullptr, nullptr); }
  ;
 
  assignment: IDENT '=' exp ';' {

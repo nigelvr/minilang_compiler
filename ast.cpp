@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <map>
+#include <string>
 #include "ast.h"
-#include "env.h"
+
+std::map<std::string, int> Environment;
 
 /**
  * Language underlying values
@@ -40,6 +43,9 @@ BinOpAST *BinOpAST::getr() {
 
 int BinOpAST::eval()
 {
+  if (this->value.vt == ValueType::String) {
+    return Environment[std::string(this->value.s)];
+  }
   switch(this->value.d) {
     case '+':
       return this->getl()->eval() + this->getr()->eval();
@@ -87,6 +93,9 @@ int AssignmentAST::getrval() {
 }
 
 int AssignmentAST::eval() {
-  Environment[this->value.s] = this->getrval();
+  std::string key(this->value.s);
+  int val = this->getrval();
+  printf("doing assignment %s %d\n", key.c_str(), val);
+  Environment[key] = val;
   return -1000000;
 }
