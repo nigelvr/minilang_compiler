@@ -5,7 +5,6 @@
 #include <string>
 #include "ast.h"
 
-std::map<std::string, int> Environment;
 std::vector<AST *> ASTList;
 
 /**
@@ -42,22 +41,22 @@ BinOpAST *BinOpAST::getr() {
   return (BinOpAST *)children.at(1);
 }
 
-int BinOpAST::eval()
+int BinOpAST::eval(std::map<std::string, int>& env)
 {
   if (this->value.vt == ValueType::String) {
-    return Environment[std::string(this->value.s)];
+    return env[std::string(this->value.s)];
   }
   switch(this->value.d) {
     case '+':
-      return this->getl()->eval() + this->getr()->eval();
+      return this->getl()->eval(env) + this->getr()->eval(env);
     case '-':
-      return this->getl()->eval() - this->getr()->eval();
+      return this->getl()->eval(env) - this->getr()->eval(env);
     case '*':
-      return this->getl()->eval() * this->getr()->eval();
+      return this->getl()->eval(env) * this->getr()->eval(env);
     case '/':
-      return this->getl()->eval() / this->getr()->eval();
+      return this->getl()->eval(env) / this->getr()->eval(env);
     case 'M':
-      return -this->getl()->eval();
+      return -this->getl()->eval(env);
   }
   return this->value.d;
 }
@@ -85,14 +84,14 @@ AssignmentAST::AssignmentAST(Value value, BinOpAST *a) {
   this->children.push_back(a);
 }
 
-int AssignmentAST::getrval() {
+int AssignmentAST::getrval(std::map<std::string, int>& env) {
   BinOpAST *binOp = (BinOpAST *)this->children.at(0);
-  return binOp->eval();
+  return binOp->eval(env);
 }
 
-int AssignmentAST::eval() {
+int AssignmentAST::eval(std::map<std::string, int>& env) {
   std::string key(this->value.s);
-  int val = this->getrval();
-  Environment[key] = val;
+  int val = this->getrval(env);
+  env[key] = val;
   return -1000000;
 }
