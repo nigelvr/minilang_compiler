@@ -1,9 +1,9 @@
 
 a.out : ast.cpp ex.tab.c lex.yy.c main.cpp
-	g++ ast.cpp ex.tab.c lex.yy.c main.cpp -std=c++11 -lfl -fpermissive
+	g++ ast.cpp ex.tab.c lex.yy.c main.cpp -std=c++11 -lfl
 
 ex.tab.c: ex.y
-	bison -d ex.y
+	bison -d ex.y -Wcounterexamples
 
 lex.yy.c: ex.l
 	flex ex.l

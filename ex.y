@@ -11,7 +11,8 @@ extern int yylex();
 %}
 
 %union {
-  struct BinOpAST *a;
+  struct BinOpAST *b_ast;
+  struct AssignmentAST *a_ast;
   char *ident;
   int d;
 }
@@ -19,30 +20,24 @@ extern int yylex();
 /* declare tokens */
 %token <d> NUMBER
 %token <ident> IDENT
-%token EOL
 
 %left '+' '-'
 %left '*' '/'
 %nonassoc '|' UMINUS
 
-%type <a> exp
-%type <a> assignment
-%type <a> progpart
-%type <ident> assignment_lhs
+%type <b_ast> exp
+%type <a_ast> assignment
 
 %%
 program:
        |
-       program progpart EOL {
+       assignment exp {
+          // do the assignment
+          $1->eval();
+          // print the expression value
           printf("%d\n", $2->eval());
-          // treefree($2);
        }
 ;
-
-progpart: exp
-        | assignment
-        ;
-
 
 exp: exp '+' exp { $$ = new BinOpAST(make_integer_value('+'), $1, $3); }
    | exp '-' exp { $$ = new BinOpAST(make_integer_value('-'), $1, $3); }
@@ -53,12 +48,8 @@ exp: exp '+' exp { $$ = new BinOpAST(make_integer_value('+'), $1, $3); }
    | NUMBER      { $$ = new BinOpAST(make_integer_value($1), nullptr, nullptr); }
  ;
 
- assignment: assignment_lhs '=' exp ';' {
-  $$ = new BinOpAST(make_integer_value('='), nullptr, nullptr);
- };
-
- assignment_lhs: IDENT {
-  $$ = $1;
+ assignment: IDENT '=' exp ';' {
+  $$ = new AssignmentAST(make_string_value($1), $3);
  };
 
  %%

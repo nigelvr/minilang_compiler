@@ -25,8 +25,8 @@ EXP     ([Ee][-+]?[0-9]+)
     return IDENT;
 }
 
-\n      { return EOL; }
+
 "//".*  
-[ \t]   { /* ignore whitespace */ }
+[ \t\n]   { /* ignore whitespace */ }
 .       { yyerror("Mystery character %c\n", *yytext); }
 %%
