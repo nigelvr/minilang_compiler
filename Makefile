@@ -1,6 +1,6 @@
 
 a.out : ast.cpp ex.tab.c lex.yy.c main.cpp
-	g++ ast.cpp ex.tab.c lex.yy.c main.cpp -std=c++11 -lfl
+	g++ ast.cpp ex.tab.c lex.yy.c main.cpp -std=c++11 -lfl -fpermissive
 
 ex.tab.c: ex.y
 	bison -d ex.y

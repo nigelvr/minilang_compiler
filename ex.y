@@ -11,7 +11,7 @@ extern int yylex();
 %}
 
 %union {
-  struct ast *a;
+  struct BinOpAST *a;
   char *ident;
   int d;
 }
@@ -27,38 +27,39 @@ extern int yylex();
 
 %type <a> exp
 %type <a> assignment
-%type <a> assignment_lhs
+%type <a> progpart
+%type <ident> assignment_lhs
 
 %%
-calclist: /* nothing */
-| calclist exp EOL {
-     printf("%d\n", $2->eval());
-     treefree($2);
- }
- | calclist assignment EOL {
-    $2->eval();
-    treefree($2);
- }
+program:
+       |
+       program progpart EOL {
+          printf("%d\n", $2->eval());
+          // treefree($2);
+       }
+;
 
- | calclist EOL { printf("> "); } /* blank line or a comment */
- ;
+progpart: exp
+        | assignment
+        ;
 
-exp: exp '+' exp { $$ = new ast(make_integer_value('+'), $1, $3); }
-   | exp '-' exp { $$ = new ast(make_integer_value('-'), $1, $3); }
-   | exp '*' exp { $$ = new ast(make_integer_value('*'), $1, $3); }
-   | exp '/' exp { $$ = new ast(make_integer_value('/'), $1, $3); }
+
+exp: exp '+' exp { $$ = new BinOpAST(make_integer_value('+'), $1, $3); }
+   | exp '-' exp { $$ = new BinOpAST(make_integer_value('-'), $1, $3); }
+   | exp '*' exp { $$ = new BinOpAST(make_integer_value('*'), $1, $3); }
+   | exp '/' exp { $$ = new BinOpAST(make_integer_value('/'), $1, $3); }
    | '(' exp ')' { $$ = $2; }
-   | '-' exp     { $$ = new ast(make_integer_value('M'), $2, nullptr); }
-   | NUMBER      { $$ = new ast(make_integer_value($1), nullptr, nullptr); }
+   | '-' exp     { $$ = new BinOpAST(make_integer_value('M'), $2, nullptr); }
+   | NUMBER      { $$ = new BinOpAST(make_integer_value($1), nullptr, nullptr); }
  ;
 
  assignment: assignment_lhs '=' exp ';' {
-  $$ = new ast(make_integer_value('='), $1, $3);
- }
+  $$ = new BinOpAST(make_integer_value('='), nullptr, nullptr);
+ };
 
  assignment_lhs: IDENT {
-  $$ = new ast(make_string_value($1), nullptr, nullptr);
- }
+  $$ = $1;
+ };
 
  %%
 

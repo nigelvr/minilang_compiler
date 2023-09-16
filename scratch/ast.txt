@@ -19,3 +19,8 @@ struct ast {
     ast *l;
     ast *r;
 };
+
+AssignmentAST::AssignmentAST(Value value, BinOpAST *a) {
+  this->value = value;
+  this->children.push_back(a);
+}

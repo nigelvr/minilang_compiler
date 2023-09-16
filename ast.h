@@ -1,6 +1,4 @@
-/*
- * Declarations for a calculator fb3-1
- */
+#include <vector>
 
 /* interface to the lexer */
 extern int yylineno; /* from lexer */
@@ -19,19 +17,31 @@ struct Value {
 Value make_integer_value(int);
 Value make_string_value(char *);
 
-/* nodes in the abstract syntax tree */
-struct ast {
+class AST {
+public:
   Value value;
-  ast *l;
-  ast *r;
+  std::vector<AST *> children;
+  virtual int eval() = 0;
+};
 
-  ast(Value ,ast *, ast*);
+class BinOpAST : public AST {
+public:
+  BinOpAST(Value, BinOpAST *, BinOpAST *);
+  int eval();
+  BinOpAST *getl();
+  BinOpAST *getr();
+};
+
+class AssignmentAST : public AST {
+public:
+  AssignmentAST(Value, BinOpAST *);
+  int getrval();
   int eval();
 };
 
-/* evaluate an AST */
-int eval(ast *);
-
+/**
+ * Misc
+*/
 /* delete and free an AST */
 // XXX hack
-void treefree(ast *);
+void treefree(BinOpAST *);
