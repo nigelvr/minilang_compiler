@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <map>
 #include <string>
+#include <vector>
+#include "ast.h"
 #include "ex.tab.h"
 
 extern FILE *yyin;
+extern std::vector<AST *> ASTList;
 extern std::map<std::string, int> Environment;
 
 int main(int argc, char **argv) {
@@ -17,14 +20,8 @@ int main(int argc, char **argv) {
     printf("done parsing with result %d\n", result);
     printf("---------------------------\n\n");
 
-    printf("looping through env\n");
-    auto it = Environment.begin();
-    do {
-        printf("(%s %d)\n", it->first.c_str(), it->second);
-        ++it;
-    } while (it != Environment.end());
-
-    printf("access element a: %d\n", Environment["a"]);
+    ASTList.at(0)->eval(); // do assignment
+    printf("%d\n", ASTList.at(1)->eval()); // do expression, print it
 
     return result;
 }

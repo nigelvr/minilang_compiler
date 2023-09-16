@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include "ast.h"
 
+extern std::vector<AST *>ASTList;
 extern int yylex();
 %}
 
@@ -32,10 +33,9 @@ extern int yylex();
 program:
        |
        assignment exp {
-          // do the assignment
-          $1->eval();
-          // print the expression value
-          printf("%d\n", $2->eval());
+          ASTList.push_back((AST *)$1);
+          ASTList.push_back((AST *)$2);
+          
        }
 ;
 

@@ -6,6 +6,7 @@
 #include "ast.h"
 
 std::map<std::string, int> Environment;
+std::vector<AST *> ASTList;
 
 /**
  * Language underlying values
@@ -55,9 +56,6 @@ int BinOpAST::eval()
       return this->getl()->eval() * this->getr()->eval();
     case '/':
       return this->getl()->eval() / this->getr()->eval();
-    /* case '=':
-      printf("assignment %s = %d\n", this->getl()->value.s, this->getr()->eval());
-      return -1000000; */
     case 'M':
       return -this->getl()->eval();
   }
@@ -95,7 +93,6 @@ int AssignmentAST::getrval() {
 int AssignmentAST::eval() {
   std::string key(this->value.s);
   int val = this->getrval();
-  printf("doing assignment %s %d\n", key.c_str(), val);
   Environment[key] = val;
   return -1000000;
 }
