@@ -41,10 +41,10 @@ BinOpAST *BinOpAST::getr() {
   return (BinOpAST *)children.at(1);
 }
 
-int BinOpAST::eval(std::map<std::string, int>& env)
+int BinOpAST::eval(Environment& env)
 {
   if (this->value.vt == ValueType::String) {
-    return env[std::string(this->value.s)];
+    return env.varenv[std::string(this->value.s)];
   }
   switch(this->value.d) {
     case '+':
@@ -84,14 +84,14 @@ AssignmentAST::AssignmentAST(Value value, BinOpAST *a) {
   this->children.push_back(a);
 }
 
-int AssignmentAST::getrval(std::map<std::string, int>& env) {
+int AssignmentAST::getrval(Environment& env) {
   BinOpAST *binOp = (BinOpAST *)this->children.at(0);
   return binOp->eval(env);
 }
 
-int AssignmentAST::eval(std::map<std::string, int>& env) {
+int AssignmentAST::eval(Environment& env) {
   std::string key(this->value.s);
   int val = this->getrval(env);
-  env[key] = val;
+  env.varenv[key] = val;
   return -1000000;
 }

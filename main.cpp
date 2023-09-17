@@ -7,9 +7,10 @@
 
 extern FILE *yyin;
 extern std::vector<AST *> ASTList;
-std::map<std::string, int> Environment;
 
 int main(int argc, char **argv) {
+    Environment env;
+
     printf("top of main\n");
     yyin = fopen("examples/test.txt", "r");
     if (!yyin) {
@@ -20,8 +21,8 @@ int main(int argc, char **argv) {
     printf("done parsing with result %d\n", result);
     printf("---------------------------\n\n");
 
-    ASTList.at(0)->eval(Environment); // do assignment
-    printf("%d\n", ASTList.at(1)->eval(Environment)); // do expression, print it
+    ASTList.at(0)->eval(env); // do assignment
+    printf("%d\n", ASTList.at(1)->eval(env)); // do expression, print it
 
     return result;
 }

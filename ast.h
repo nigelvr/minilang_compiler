@@ -1,6 +1,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include "env.h"
 
 /* interface to the lexer */
 extern int yylineno; /* from lexer */
@@ -23,13 +24,13 @@ class AST {
 public:
   Value value;
   std::vector<AST *> children;
-  virtual int eval(std::map<std::string, int>&) = 0;
+  virtual int eval(Environment&) = 0;
 };
 
 class BinOpAST : public AST {
 public:
   BinOpAST(Value, BinOpAST *, BinOpAST *);
-  int eval(std::map<std::string, int>&);
+  int eval(Environment&);
   BinOpAST *getl();
   BinOpAST *getr();
 };
@@ -37,8 +38,8 @@ public:
 class AssignmentAST : public AST {
 public:
   AssignmentAST(Value, BinOpAST *);
-  int getrval(std::map<std::string, int>&);
-  int eval(std::map<std::string, int>&);
+  int getrval(Environment&);
+  int eval(Environment&);
 };
 
 /**
