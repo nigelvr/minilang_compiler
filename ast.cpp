@@ -95,3 +95,32 @@ int AssignmentAST::eval(Environment& env) {
   env.varenv[key] = val;
   return -1000000;
 }
+
+/**
+ * Function definition
+ */
+FuncDefAST::FuncDefAST(Value value, std::vector<std::string> param_list, BinOpAST *a) {
+  this->value = value;
+  this->param_list = param_list;
+  this->children.push_back(a);
+}
+
+int FuncDefAST::eval(Environment &env) {
+  std::string key(this->value.s);
+  env.funcenv[key] = this;
+  return -1000000;
+}
+
+/**
+ * Function calls
+*/
+FuncCallAST::FuncCallAST(Value value, std::vector<int> arg_list) {
+  this->value = value;
+  this->arg_list = arg_list;
+}
+
+int FuncCallAST::eval(Environment &env) {
+  FuncDefAST *f = env.funcenv[this->value.s];
+  auto expr = f->children.at(0);
+  return expr->eval(env);
+}

@@ -21,8 +21,10 @@ int main(int argc, char **argv) {
     printf("done parsing with result %d\n", result);
     printf("---------------------------\n\n");
 
-    ASTList.at(0)->eval(env); // do assignment
-    printf("%d\n", ASTList.at(1)->eval(env)); // do expression, print it
+    ASTList.at(0)->eval(env); // do the assignment
+    ASTList.at(1)->eval(env); // do the funcdef
+
+    printf("%d\n", ASTList.at(2)->eval(env)); // evaluate the expression, print it
 
     return result;
 }
