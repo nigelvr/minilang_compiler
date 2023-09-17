@@ -13,8 +13,7 @@ extern int yylex();
 %}
 
 %union {
-  struct AST *g_ast;
-  struct BinOpAST *b_ast;
+  struct ExpressionAST *e_ast;
   struct AssignmentAST *a_ast;
   struct FuncDefAST *fdef_ast;
   struct FuncCallAST *fcall_ast;
@@ -32,7 +31,7 @@ extern int yylex();
 %left '*' '/'
 %nonassoc '|' UMINUS
 
-%type <g_ast> exp
+%type <e_ast> exp
 %type <a_ast> assignment
 %type <fdef_ast> funcdef
 

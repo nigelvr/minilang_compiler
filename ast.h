@@ -33,13 +33,11 @@ public:
 /**
  * Base class for expression ASTs
 */
-class ExpressionAST : AST {
+class ExpressionAST : public AST {};
 
-}
-
-class BinOpAST : public AST {
+class BinOpAST : public ExpressionAST {
 public:
-  BinOpAST(Value, BinOpAST *, BinOpAST *);
+  BinOpAST(Value, ExpressionAST *, ExpressionAST *);
   int eval(Environment&);
   BinOpAST *getl();
   BinOpAST *getr();
@@ -47,19 +45,19 @@ public:
 
 class AssignmentAST : public AST {
 public:
-  AssignmentAST(Value, BinOpAST *);
+  AssignmentAST(Value, ExpressionAST *);
   int getrval(Environment&);
   int eval(Environment&);
 };
 
 class FuncDefAST : public AST {
 public:
-  FuncDefAST(Value, std::vector<std::string>, BinOpAST *);
+  FuncDefAST(Value, std::vector<std::string>, ExpressionAST *);
   std::vector<std::string> param_list;
   int eval(Environment&);
 };
 
-class FuncCallAST : public AST {
+class FuncCallAST : public ExpressionAST {
 public:
   FuncCallAST(Value, std::vector<int>);
   std::vector<int> arg_list;

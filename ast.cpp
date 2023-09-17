@@ -27,7 +27,7 @@ Value make_string_value(char *s) {
 /**
  * Binary Operators
 */
-BinOpAST::BinOpAST(Value value, BinOpAST *l, BinOpAST *r) {
+BinOpAST::BinOpAST(Value value, ExpressionAST *l, ExpressionAST *r) {
   this->value = value;
   this->children.push_back(l);
   this->children.push_back(r);
@@ -79,7 +79,7 @@ void treefree(BinOpAST *a)
 /**
  * Assignments
 */
-AssignmentAST::AssignmentAST(Value value, BinOpAST *a) {
+AssignmentAST::AssignmentAST(Value value, ExpressionAST *a) {
   this->value = value;
   this->children.push_back(a);
 }
@@ -99,7 +99,7 @@ int AssignmentAST::eval(Environment& env) {
 /**
  * Function definition
  */
-FuncDefAST::FuncDefAST(Value value, std::vector<std::string> param_list, BinOpAST *a) {
+FuncDefAST::FuncDefAST(Value value, std::vector<std::string> param_list, ExpressionAST *a) {
   this->value = value;
   this->param_list = param_list;
   this->children.push_back(a);
