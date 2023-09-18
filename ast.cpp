@@ -49,22 +49,22 @@ BinOpAST *BinOpAST::getr() {
   return (BinOpAST *)children.at(1);
 }
 
-int BinOpAST::eval(Environment& env)
+int BinOpAST::emit(Environment& env)
 {
   if (this->value.vt == ValueType::String) {
     return env.varenv[std::string(this->value.s)];
   }
   switch(this->value.d) {
     case '+':
-      return this->getl()->eval(env) + this->getr()->eval(env);
+      return this->getl()->emit(env) + this->getr()->emit(env);
     case '-':
-      return this->getl()->eval(env) - this->getr()->eval(env);
+      return this->getl()->emit(env) - this->getr()->emit(env);
     case '*':
-      return this->getl()->eval(env) * this->getr()->eval(env);
+      return this->getl()->emit(env) * this->getr()->emit(env);
     case '/':
-      return this->getl()->eval(env) / this->getr()->eval(env);
+      return this->getl()->emit(env) / this->getr()->emit(env);
     case 'M':
-      return -this->getl()->eval(env);
+      return -this->getl()->emit(env);
   }
   return this->value.d;
 }
@@ -94,10 +94,10 @@ AssignmentAST::AssignmentAST(Value value, ExpressionAST *a) {
 
 int AssignmentAST::getrval(Environment& env) {
   BinOpAST *binOp = (BinOpAST *)this->children.at(0);
-  return binOp->eval(env);
+  return binOp->emit(env);
 }
 
-int AssignmentAST::eval(Environment& env) {
+int AssignmentAST::emit(Environment& env) {
   std::string key(this->value.s);
   int val = this->getrval(env);
   env.varenv[key] = val;
@@ -113,7 +113,7 @@ FuncDefAST::FuncDefAST(Value value, ParamList *param_list, ExpressionAST *a) {
   this->children.push_back(a);
 }
 
-int FuncDefAST::eval(Environment &env) {
+int FuncDefAST::emit(Environment &env) {
   std::string key(this->value.s);
   env.funcenv[key] = this;
   printf("function %s defined with params: ", this->value.s);
@@ -132,7 +132,7 @@ FuncCallAST::FuncCallAST(Value value, ArgList *arglist) {
   this->arglist = arglist;
 }
 
-int FuncCallAST::eval(Environment &env) {
+int FuncCallAST::emit(Environment &env) {
   Environment tmpenv;
   tmpenv.varenv = env.varenv;
   tmpenv.funcenv = env.funcenv;
@@ -149,5 +149,5 @@ int FuncCallAST::eval(Environment &env) {
 
   
   auto expr = f->children.at(0);
-  return expr->eval(tmpenv);
+  return expr->emit(tmpenv);
 }
