@@ -21,6 +21,17 @@ Value make_integer_value(int);
 Value make_string_value(char *);
 
 /**
+ * Helper classes for the parser
+*/
+struct ParamList {
+  std::vector<std::string> params;
+};
+
+struct ArgList {
+  std::vector<int> args;
+};
+
+/**
  * Base class for all ASTs
 */
 class AST {
@@ -52,15 +63,15 @@ public:
 
 class FuncDefAST : public AST {
 public:
-  FuncDefAST(Value, std::vector<std::string>, ExpressionAST *);
-  std::vector<std::string> param_list;
+  FuncDefAST(Value, ParamList*, ExpressionAST *);
+  ParamList *param_list;
   int eval(Environment&);
 };
 
 class FuncCallAST : public ExpressionAST {
 public:
-  FuncCallAST(Value, std::vector<int>);
-  std::vector<int> arg_list;
+  FuncCallAST(Value, ArgList *);
+  ArgList *arglist;
   int eval(Environment&);
 };
 

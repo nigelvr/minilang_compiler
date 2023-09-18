@@ -8,6 +8,14 @@
 std::vector<AST *> ASTList;
 
 /**
+ * Envrionment
+*/
+Environment::Environment(std::map<std::string, int>vars, std::map<std::string, FuncDefAST *>funcs) {
+  this->varenv = vars;
+  this->funcenv = funcs;
+}
+
+/**
  * Language underlying values
 */
 Value make_integer_value(int d) {
@@ -99,7 +107,7 @@ int AssignmentAST::eval(Environment& env) {
 /**
  * Function definition
  */
-FuncDefAST::FuncDefAST(Value value, std::vector<std::string> param_list, ExpressionAST *a) {
+FuncDefAST::FuncDefAST(Value value, ParamList *param_list, ExpressionAST *a) {
   this->value = value;
   this->param_list = param_list;
   this->children.push_back(a);
@@ -108,19 +116,38 @@ FuncDefAST::FuncDefAST(Value value, std::vector<std::string> param_list, Express
 int FuncDefAST::eval(Environment &env) {
   std::string key(this->value.s);
   env.funcenv[key] = this;
+  printf("function %s defined with params: ", this->value.s);
+  for (int i = 0; i < this->param_list->params.size(); i++) {
+    printf("%s ", this->param_list->params.at(i).c_str());
+  }
+  printf("\n");
   return -1000000;
 }
 
 /**
  * Function calls
 */
-FuncCallAST::FuncCallAST(Value value, std::vector<int> arg_list) {
+FuncCallAST::FuncCallAST(Value value, ArgList *arglist) {
   this->value = value;
-  this->arg_list = arg_list;
+  this->arglist = arglist;
 }
 
 int FuncCallAST::eval(Environment &env) {
-  FuncDefAST *f = env.funcenv[this->value.s];
+  Environment tmpenv;
+  tmpenv.varenv = env.varenv;
+  tmpenv.funcenv = env.funcenv;
+  FuncDefAST *f = tmpenv.funcenv[this->value.s];
+  printf("Calling function %s with args: \n", this->value.s);
+
+  // copy params into tmpenv
+  for (int i = 0; i < f->param_list->params.size(); i++) {
+    std::string key = f->param_list->params.at(i);
+    int value = this->arglist->args.at(i);
+    tmpenv.varenv[key] = value;
+    printf("(%s %d)\n", key.c_str(), value);
+  }
+
+  
   auto expr = f->children.at(0);
-  return expr->eval(env);
+  return expr->eval(tmpenv);
 }

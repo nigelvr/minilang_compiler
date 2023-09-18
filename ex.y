@@ -17,6 +17,8 @@ extern int yylex();
   struct AssignmentAST *a_ast;
   struct FuncDefAST *fdef_ast;
   struct FuncCallAST *fcall_ast;
+  struct ParamList *plist_h;
+  struct ArgList *arglist_h;
   char *ident;
   int d;
 }
@@ -34,6 +36,8 @@ extern int yylex();
 %type <e_ast> exp
 %type <a_ast> assignment
 %type <fdef_ast> funcdef
+%type <plist_h> params
+%type <arglist_h> args
 
 
 %%
@@ -54,17 +58,40 @@ exp: exp '+' exp    { $$ = new BinOpAST(make_integer_value('+'), $1, $3); }
    | '-' exp        { $$ = new BinOpAST(make_integer_value('M'), $2, nullptr); }
    | NUMBER         { $$ = new BinOpAST(make_integer_value($1), nullptr, nullptr); }
    | IDENT          { $$ = new BinOpAST(make_string_value($1), nullptr, nullptr); }
-   | IDENT '(' ')'  { $$ = new FuncCallAST(make_string_value($1), std::vector<int>()); }
+   | IDENT '(' args ')'  { $$ = new FuncCallAST(make_string_value($1), $3); }
  ;
 
  assignment: IDENT '=' exp ';' {
   $$ = new AssignmentAST(make_string_value($1), $3);
  };
 
- funcdef: FUNC IDENT '(' ')' '{' RETURN exp ';' '}' {
-  $$ = new FuncDefAST(make_string_value($2), std::vector<std::string>(), $7);
+ funcdef: FUNC IDENT '(' params ')' '{' RETURN exp ';' '}' {
+  $$ = new FuncDefAST(make_string_value($2), $4, $8);
  };
 
+ params: { new ParamList(); }
+        | IDENT { 
+            ParamList *p = new ParamList();
+            p->params.push_back($1);
+            $$ = p;
+        }
+        | params ',' IDENT {
+          auto a1 = $1;
+          a1->params.push_back($3);
+          $$ = a1;
+        };
+
+ args: { new ArgList(); }
+     | NUMBER {
+          ArgList *a = new ArgList();
+          a->args.push_back($1);
+          $$ = a;
+     }
+     | args ',' NUMBER {
+          auto a1 = $1;
+          a1->args.push_back($3);
+          $$ = a1;
+     };
  %%
 
 void yyerror(const char *s, ...)
