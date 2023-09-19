@@ -48,7 +48,8 @@ class ExpressionAST : public AST {};
 
 class BinOpAST : public ExpressionAST {
 public:
-  BinOpAST(Value, ExpressionAST *, ExpressionAST *);
+  BinOpAST(int, ExpressionAST *, ExpressionAST *);
+  BinOpAST(char *, ExpressionAST *, ExpressionAST *);
   int emit(Environment&);
   BinOpAST *getl();
   BinOpAST *getr();
@@ -56,21 +57,21 @@ public:
 
 class AssignmentAST : public AST {
 public:
-  AssignmentAST(Value, ExpressionAST *);
+  AssignmentAST(char *, ExpressionAST *);
   int getrval(Environment&);
   int emit(Environment&);
 };
 
 class FuncDefAST : public AST {
 public:
-  FuncDefAST(Value, ParamList*, ExpressionAST *);
+  FuncDefAST(char *, ParamList*, ExpressionAST *);
   ParamList *param_list;
   int emit(Environment&);
 };
 
 class FuncCallAST : public ExpressionAST {
 public:
-  FuncCallAST(Value, ArgList *);
+  FuncCallAST(char *, ArgList *);
   ArgList *arglist;
   int emit(Environment&);
 };

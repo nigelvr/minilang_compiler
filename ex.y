@@ -50,23 +50,23 @@ program:
        }
 ;
 
-exp: exp '+' exp    { $$ = new BinOpAST(make_integer_value('+'), $1, $3); }
-   | exp '-' exp    { $$ = new BinOpAST(make_integer_value('-'), $1, $3); }
-   | exp '*' exp    { $$ = new BinOpAST(make_integer_value('*'), $1, $3); }
-   | exp '/' exp    { $$ = new BinOpAST(make_integer_value('/'), $1, $3); }
+exp: exp '+' exp    { $$ = new BinOpAST('+', $1, $3); }
+   | exp '-' exp    { $$ = new BinOpAST('-', $1, $3); }
+   | exp '*' exp    { $$ = new BinOpAST('*', $1, $3); }
+   | exp '/' exp    { $$ = new BinOpAST('/', $1, $3); }
    | '(' exp ')'    { $$ = $2; }
-   | '-' exp        { $$ = new BinOpAST(make_integer_value('M'), $2, nullptr); }
-   | NUMBER         { $$ = new BinOpAST(make_integer_value($1), nullptr, nullptr); }
-   | IDENT          { $$ = new BinOpAST(make_string_value($1), nullptr, nullptr); }
-   | IDENT '(' args ')'  { $$ = new FuncCallAST(make_string_value($1), $3); }
+   | '-' exp        { $$ = new BinOpAST('M', $2, nullptr); }
+   | NUMBER         { $$ = new BinOpAST($1, nullptr, nullptr); }
+   | IDENT          { $$ = new BinOpAST($1, nullptr, nullptr); }
+   | IDENT '(' args ')'  { $$ = new FuncCallAST($1, $3); }
  ;
 
  assignment: IDENT '=' exp ';' {
-  $$ = new AssignmentAST(make_string_value($1), $3);
+  $$ = new AssignmentAST($1, $3);
  };
 
  funcdef: FUNC IDENT '(' params ')' '{' RETURN exp ';' '}' {
-  $$ = new FuncDefAST(make_string_value($2), $4, $8);
+  $$ = new FuncDefAST($2, $4, $8);
  };
 
  params: { new ParamList(); }

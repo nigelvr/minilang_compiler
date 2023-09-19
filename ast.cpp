@@ -35,8 +35,14 @@ Value make_string_value(char *s) {
 /**
  * Binary Operators
 */
-BinOpAST::BinOpAST(Value value, ExpressionAST *l, ExpressionAST *r) {
-  this->value = value;
+BinOpAST::BinOpAST(int value, ExpressionAST *l, ExpressionAST *r) {
+  this->value = make_integer_value(value);
+  this->children.push_back(l);
+  this->children.push_back(r);
+}
+
+BinOpAST::BinOpAST(char *value, ExpressionAST *l, ExpressionAST *r) {
+  this->value = make_string_value(value);
   this->children.push_back(l);
   this->children.push_back(r);
 }
@@ -87,8 +93,8 @@ void treefree(BinOpAST *a)
 /**
  * Assignments
 */
-AssignmentAST::AssignmentAST(Value value, ExpressionAST *a) {
-  this->value = value;
+AssignmentAST::AssignmentAST(char *value, ExpressionAST *a) {
+  this->value = make_string_value(value);
   this->children.push_back(a);
 }
 
@@ -107,8 +113,8 @@ int AssignmentAST::emit(Environment& env) {
 /**
  * Function definition
  */
-FuncDefAST::FuncDefAST(Value value, ParamList *param_list, ExpressionAST *a) {
-  this->value = value;
+FuncDefAST::FuncDefAST(char *value, ParamList *param_list, ExpressionAST *a) {
+  this->value = make_string_value(value);
   this->param_list = param_list;
   this->children.push_back(a);
 }
@@ -127,8 +133,8 @@ int FuncDefAST::emit(Environment &env) {
 /**
  * Function calls
 */
-FuncCallAST::FuncCallAST(Value value, ArgList *arglist) {
-  this->value = value;
+FuncCallAST::FuncCallAST(char *value, ArgList *arglist) {
+  this->value = make_string_value(value);
   this->arglist = arglist;
 }
 
