@@ -6,7 +6,7 @@
 #include "ex.tab.h"
 
 extern FILE *yyin;
-extern std::vector<AST *> ASTList;
+std::vector<AST *> ASTList;
 
 int main(int argc, char **argv) {
     Environment env;

@@ -44,9 +44,9 @@ extern int yylex();
 program:
        |
        assignment funcdef exp {
-          ASTList.push_back((AST *)$1); // assignment
-          ASTList.push_back((AST *)$2); // funcdef
-          ASTList.push_back((AST *)$3); // expression
+          ASTList.push_back(static_cast<AST *>($1)); // assignment
+          ASTList.push_back(static_cast<AST *>($2)); // funcdef
+          ASTList.push_back(static_cast<AST *>($3)); // expression
        }
 ;
 

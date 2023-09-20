@@ -1,13 +1,22 @@
+CC=clang++
+CFLAGS=-g -std=c++11 -Wno-deprecated-register -Wno-deprecated
+MAINSRC=ast.cpp main.cpp
+BISONGENC=ex.tab.c
+BISONGEN=ex.tab.c ex.tab.h
+BISONSRC=ex.y
+FLEXGEN=lex.yy.c
+FLEXSRC=ex.l
+TARGET=lang
+ 
+$(TARGET): $(MAINSRC) $(BISONGEN) $(FLEXGEN)
+	$(CC) $(MAINSRC) $(BISONGENC) $(FLEXGEN) $(CFLAGS) -o $(TARGET)
 
-a.out : ast.cpp ex.tab.c lex.yy.c main.cpp
-	g++ ast.cpp ex.tab.c lex.yy.c main.cpp -std=c++11 -g -fpermissive
+$(BISONGEN): $(BISONSRC)
+	bison -d $(BISONSRC) -Wcounterexamples
 
-ex.tab.c: ex.y
-	bison -d ex.y -Wcounterexamples
-
-lex.yy.c: ex.l
-	flex ex.l
+$(FLEXGEN): $(FLEXSRC)
+	flex $(FLEXSRC)
 
 .PHONY: clean
 clean:
-	rm -f ex.tab.c ex.tab.h lex.yy.c a.out
+	rm -f $(BISONGEN) $(FLEXGEN) $(TARGET)

@@ -5,8 +5,6 @@
 #include <string>
 #include "ast.h"
 
-std::vector<AST *> ASTList;
-
 /**
  * Envrionment
 */
