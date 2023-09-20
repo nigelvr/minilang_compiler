@@ -7,18 +7,18 @@
 extern int yylineno; /* from lexer */
 void yyerror(const char *, ...);
 
-enum class ValueType { String, Integer };
+enum class UValueType { String, Integer };
 
-struct Value {
-    ValueType vt;
+struct UValue {
+    UValueType vt;
     union {
         char *s;
         int d;
     };
 };
 
-Value make_integer_value(int);
-Value make_string_value(char *);
+UValue make_integer_value(int);
+UValue make_string_value(char *);
 
 /**
  * Helper classes for the parser
@@ -36,7 +36,7 @@ struct ArgList {
 */
 class AST {
 public:
-  Value value;
+  UValue value;
   std::vector<AST *> children;
   virtual int emit(Environment&) = 0;
 };

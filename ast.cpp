@@ -16,16 +16,16 @@ Environment::Environment(std::map<std::string, int>vars, std::map<std::string, F
 /**
  * Language underlying values
 */
-Value make_integer_value(int d) {
-  Value v;
-  v.vt = ValueType::Integer;
+UValue make_integer_value(int d) {
+  UValue v;
+  v.vt = UValueType::Integer;
   v.d = d;
   return v;
 }
 
-Value make_string_value(char *s) {
-  Value v;
-  v.vt = ValueType::String;
+UValue make_string_value(char *s) {
+  UValue v;
+  v.vt = UValueType::String;
   v.s = s;
   return v;
 }
@@ -55,7 +55,7 @@ BinOpAST *BinOpAST::getr() {
 
 int BinOpAST::emit(Environment& env)
 {
-  if (this->value.vt == ValueType::String) {
+  if (this->value.vt == UValueType::String) {
     return env.varenv[std::string(this->value.s)];
   }
   switch(this->value.d) {
