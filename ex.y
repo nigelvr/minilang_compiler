@@ -13,7 +13,7 @@ extern int yylex();
 %}
 
 %union {
-  struct BinOpAST *bop_ast;
+  struct ExprAST *e_ast;
   struct FuncDefAST *fdef_ast;
   struct FuncCallAST *fcall_ast;
   struct ParamList *plist_h;
@@ -33,19 +33,18 @@ extern int yylex();
 %left '*' '/'
 %nonassoc '|' UMINUS
 
-%type <bop_ast> exp
+%type <e_ast> exp
 %type <fdef_ast> funcdef
 %type <plist_h> params
-%type <fcall_ast> funccall
 %type <alist_h> args
 
 
 %%
 program:
        |
-       funcdef funccall {
+       funcdef exp {
           ASTList.push_back(static_cast<AST *>($1)); // funcdef
-          ASTList.push_back(static_cast<AST *>($2)); // funccall
+          ASTList.push_back(static_cast<AST *>($2)); // expression
        }
 ;
 
@@ -58,6 +57,7 @@ exp: exp '+' exp    { $$ = new BinOpAST('+', $1, $3); }
    | '-' exp        { $$ = new BinOpAST('M', $2, nullptr); }
    | NUMBER         { $$ = new BinOpAST($1, nullptr, nullptr); }
    | IDENT          { $$ = new BinOpAST($1, nullptr, nullptr); }
+   | IDENT '(' args ')' { $$ = new FuncCallAST($1, $3); }
  ;
 
 funcdef: FUNC IDENT '(' params ')' '{' RETURN exp ';' '}' {
@@ -75,10 +75,6 @@ params: { new ParamList(); }
         a1->params.push_back($3);
         $$ = a1;
       };
-
-funccall: IDENT '(' args ')' ';' {
-  $$ = new FuncCallAST($1, $3);
-}
 
 args: { new ArgList(); }
     | exp {

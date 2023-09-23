@@ -34,15 +34,18 @@ int main(int argc, char **argv) {
     
     // do the function definition
     llvm::Function *F = ((FuncDefAST *)ASTList.at(0))->emitllvm();
-    printf("llvm function definition\n");
-    F->print(llvm::errs());
-    printf("\n");
+    // printf("llvm function definition\n");
+    // F->print(llvm::errs());
+    // printf("\n");
     // function call
-    llvm::Value *V = ((FuncCallAST *)ASTList.at(1))->emitllvm();
-    printf("function call\n");
-    V->print(llvm::errs());
-    printf("\n");
+    // llvm::Value *V = ((FuncCallAST *)ASTList.at(1))->emitllvm();
+    llvm::Value *V = ((ExprAST *)ASTList.at(1))->emitllvm();
     
+    // printf("function call\n");
+    // V->print(llvm::errs());
+    //printf("\n");
+    
+    mymodule->print(llvm::errs(), nullptr);
 
     return result;
 }

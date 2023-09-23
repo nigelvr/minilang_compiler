@@ -75,7 +75,7 @@ public:
   llvm::Function *emitllvm();
 };
 
-class FuncCallAST : public AST {
+class FuncCallAST : public ExprAST {
 public:
   FuncCallAST(char *, ArgList*);
   ArgList *args;

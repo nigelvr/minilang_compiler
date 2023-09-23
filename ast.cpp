@@ -121,6 +121,7 @@ llvm::Function *FuncDefAST::emitllvm() {
   BinOpAST *a = (BinOpAST *)this->children.at(0);
   llvm::Value *ret = ((BinOpAST *)(children.at(0)))->emitllvm();
   builder.CreateRet(ret);
+  builder.ClearInsertionPoint();
 
   llvm::verifyFunction(*F);
 
