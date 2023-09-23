@@ -6,6 +6,7 @@
 
 // Forward decl
 class BinOpAST;
+class ExprAST;
 
 /* interface to the lexer */
 extern int yylineno; /* from lexer */
@@ -32,11 +33,13 @@ struct ParamList {
 };
 
 struct ArgList {
-  std::vector<BinOpAST *> args;
+  std::vector<ExprAST *> args;
 };
 
 /**
  * Base class for all ASTs
+ * 
+ * XXX TODO: destructor for this class
 */
 class AST {
 public:
@@ -44,12 +47,17 @@ public:
   std::vector<AST *> children;
 };
 
-class BinOpAST : public AST {
+class ExprAST : public AST {
 public:
-  BinOpAST(int, BinOpAST *, BinOpAST *);
-  BinOpAST(char *, BinOpAST *, BinOpAST *);
-  BinOpAST *getl();
-  BinOpAST *getr();
+  virtual llvm::Value *emitllvm() = 0;
+};
+
+class BinOpAST : public ExprAST {
+public:
+  BinOpAST(int, ExprAST *, ExprAST *);
+  BinOpAST(char *, ExprAST *, ExprAST *);
+  ExprAST *getl();
+  ExprAST *getr();
   llvm::Value *emitllvm();
 };
 
@@ -73,11 +81,3 @@ public:
   ArgList *args;
   llvm::Value *emitllvm();
 };
-
-
-/**
- * Misc
-*/
-/* delete and free an AST */
-// XXX hack
-void treefree(BinOpAST *);

@@ -37,36 +37,36 @@ UValue make_string_value(char *s) {
 /**
  * Binary Operators
 */
-BinOpAST::BinOpAST(int value, BinOpAST *l, BinOpAST *r) {
+BinOpAST::BinOpAST(int value, ExprAST *l, ExprAST *r) {
   this->value = make_integer_value(value);
   this->children.push_back(l);
   this->children.push_back(r);
 }
 
-BinOpAST::BinOpAST(char *value, BinOpAST *l, BinOpAST *r) {
+BinOpAST::BinOpAST(char *value, ExprAST *l, ExprAST *r) {
   this->value = make_string_value(value);
   this->children.push_back(l);
   this->children.push_back(r);
 }
 
-BinOpAST *BinOpAST::getl() {
+ExprAST *BinOpAST::getl() {
   if (children.size() >= 1) {
-    return (BinOpAST *)children.at(0);
+    return (ExprAST *)children.at(0);
   }
   return nullptr;
 }
 
-BinOpAST *BinOpAST::getr() {
+ExprAST *BinOpAST::getr() {
   if (children.size() == 2) {
-    return (BinOpAST *)children.at(1);
+    return (ExprAST *)children.at(1);
   }
   return nullptr;
 }
 
 llvm::Value *BinOpAST::emitllvm()
 {
-  BinOpAST *L = this->getl();
-  BinOpAST *R = this->getr();
+  ExprAST *L = this->getl();
+  ExprAST *R = this->getr();
 
   if (L && R) {
     llvm::Value *Lv = L->emitllvm();
@@ -144,20 +144,4 @@ llvm::Value *FuncCallAST::emitllvm() {
   }
 
   return builder.CreateCall(F, evaled_args, "calltmp");
-}
-
-// XXX fix this
-void treefree(BinOpAST *a)
-{
-  int val = a->value.d;
-  if (val == '+' || val == '-' || val == '*' || val == '/') {
-    treefree(a->getl());
-    treefree(a->getr());
-  }
-  else if (val == 'M') {
-    treefree(a->getl());
-  }
-  else {
-    delete a;
-  }
 }
