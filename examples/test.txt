@@ -1,3 +1,2 @@
-a=6;
-func foo(x,y) { return x+y+a; }
-a+foo(1,2)
+func foo(x,y) { return 5+x+y; }
+foo(3,4);

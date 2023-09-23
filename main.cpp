@@ -4,12 +4,21 @@
 #include <vector>
 #include "ast.h"
 #include "ex.tab.h"
+// LLVM
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/IRBuilder.h"
 
 extern FILE *yyin;
 std::vector<AST *> ASTList;
 
+llvm::LLVMContext context;
+llvm::Module *mymodule;
+llvm::IRBuilder<> builder(context);
+std::map<std::string, llvm::Value *> NamedValues;
+
 int main(int argc, char **argv) {
-    Environment env;
+    mymodule = new llvm::Module("test", context);
 
     printf("top of main\n");
     yyin = fopen("examples/test.txt", "r");
@@ -18,13 +27,22 @@ int main(int argc, char **argv) {
         return 1;
     }
     int result = yyparse();
-    printf("done parsing with result %d\n", result);
-    printf("---------------------------\n\n");
-
-    ASTList.at(0)->emit(env); // do the assignment
-    ASTList.at(1)->emit(env); // do the funcdef
-
-    printf("%d\n", ASTList.at(2)->emit(env)); // evaluate the expression, print it
+    if (result != 0) {
+        fprintf(stderr, "Failed to parse file\n");
+        return result;
+    }
+    
+    // do the function definition
+    llvm::Function *F = ((FuncDefAST *)ASTList.at(0))->emitllvm();
+    printf("llvm function definition\n");
+    F->print(llvm::errs());
+    printf("\n");
+    // function call
+    llvm::Value *V = ((FuncCallAST *)ASTList.at(1))->emitllvm();
+    printf("function call\n");
+    V->print(llvm::errs());
+    printf("\n");
+    
 
     return result;
 }

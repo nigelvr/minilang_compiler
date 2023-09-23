@@ -1,7 +1,11 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "env.h"
+// LLVM
+#include "llvm/IR/Value.h"
+
+// Forward decl
+class BinOpAST;
 
 /* interface to the lexer */
 extern int yylineno; /* from lexer */
@@ -28,7 +32,7 @@ struct ParamList {
 };
 
 struct ArgList {
-  std::vector<int> args;
+  std::vector<BinOpAST *> args;
 };
 
 /**
@@ -38,43 +42,38 @@ class AST {
 public:
   UValue value;
   std::vector<AST *> children;
-  virtual int emit(Environment&) = 0;
 };
 
-/**
- * Base class for expression ASTs
-*/
-class ExpressionAST : public AST {};
-
-class BinOpAST : public ExpressionAST {
+class BinOpAST : public AST {
 public:
-  BinOpAST(int, ExpressionAST *, ExpressionAST *);
-  BinOpAST(char *, ExpressionAST *, ExpressionAST *);
-  int emit(Environment&);
+  BinOpAST(int, BinOpAST *, BinOpAST *);
+  BinOpAST(char *, BinOpAST *, BinOpAST *);
   BinOpAST *getl();
   BinOpAST *getr();
+  llvm::Value *emitllvm();
 };
 
 class AssignmentAST : public AST {
 public:
-  AssignmentAST(char *, ExpressionAST *);
-  int getrval(Environment&);
-  int emit(Environment&);
+  AssignmentAST(char *, BinOpAST *);
+  int getrval();
+  llvm::Value *emitllvm();
 };
 
 class FuncDefAST : public AST {
 public:
-  FuncDefAST(char *, ParamList*, ExpressionAST *);
+  FuncDefAST(char *, ParamList*, BinOpAST *);
   ParamList *param_list;
-  int emit(Environment&);
+  llvm::Function *emitllvm();
 };
 
-class FuncCallAST : public ExpressionAST {
+class FuncCallAST : public AST {
 public:
-  FuncCallAST(char *, ArgList *);
-  ArgList *arglist;
-  int emit(Environment&);
+  FuncCallAST(char *, ArgList*);
+  ArgList *args;
+  llvm::Value *emitllvm();
 };
+
 
 /**
  * Misc
