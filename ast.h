@@ -61,16 +61,9 @@ public:
   llvm::Value *emitllvm();
 };
 
-class AssignmentAST : public AST {
-public:
-  AssignmentAST(char *, BinOpAST *);
-  int getrval();
-  llvm::Value *emitllvm();
-};
-
 class FuncDefAST : public AST {
 public:
-  FuncDefAST(char *, ParamList*, BinOpAST *);
+  FuncDefAST(char *, ParamList*, ExprAST *);
   ParamList *param_list;
   llvm::Function *emitllvm();
 };

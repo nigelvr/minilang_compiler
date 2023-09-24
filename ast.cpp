@@ -96,7 +96,7 @@ llvm::Value *BinOpAST::emitllvm()
 /**
  * Function definition
  */
-FuncDefAST::FuncDefAST(char *value, ParamList *param_list, BinOpAST *a) {
+FuncDefAST::FuncDefAST(char *value, ParamList *param_list, ExprAST *a) {
   this->value = make_string_value(value);
   this->param_list = param_list;
   this->children.push_back(a);
@@ -121,8 +121,8 @@ llvm::Function *FuncDefAST::emitllvm() {
   for (auto &Arg : F->args())
     NamedValues[std::string(Arg.getName())] = &Arg;
 
-  BinOpAST *a = (BinOpAST *)this->children.at(0);
-  llvm::Value *ret = ((BinOpAST *)(children.at(0)))->emitllvm();
+  ExprAST *a = (ExprAST *)this->children.at(0);
+  llvm::Value *ret = ((ExprAST *)(children.at(0)))->emitllvm();
   builder.CreateRet(ret);
   builder.ClearInsertionPoint();
 
