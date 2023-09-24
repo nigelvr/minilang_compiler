@@ -1,5 +1,5 @@
 CC=clang++
-CFLAGS=-g -std=c++11 -Wno-deprecated-register -Wno-deprecated
+CFLAGS=-g -std=c++11 -Wno-deprecated-register -Wno-deprecated -Wno-register
 LLVM_FLAGS=$(shell llvm-config --cxxflags --libs engine)
 MAINSRC=ast.cpp main.cpp
 BISONGENC=ex.tab.c

@@ -4,10 +4,19 @@
 #include <vector>
 #include "ast.h"
 #include "ex.tab.h"
-// LLVM
+// Kaleidoscope JIT
+#include "KaleidoscopeJIT.h"
+// LLVM library
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/IRBuilder.h"
+// function pass
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Transforms/Scalar/SimplifyCFG.h"
+
 
 extern FILE *yyin;
 std::vector<AST *> ASTList;
@@ -16,9 +25,18 @@ llvm::LLVMContext context;
 llvm::Module *mymodule;
 llvm::IRBuilder<> builder(context);
 std::map<std::string, llvm::Value *> NamedValues;
+llvm::legacy::FunctionPassManager *FPM;
 
 int main(int argc, char **argv) {
     mymodule = new llvm::Module("test", context);
+    FPM = new llvm::legacy::FunctionPassManager(mymodule);
+
+    FPM->add(llvm::createInstructionCombiningPass()); // peephole
+    FPM->add(llvm::createReassociatePass());
+    FPM->add(llvm::createGVNPass()); // eliminate common subexpressions
+    FPM->add(llvm::createCFGSimplificationPass()); // simplify cfg
+    FPM->doInitialization();
+
 
     printf("top of main\n");
     yyin = fopen("examples/test.txt", "r");

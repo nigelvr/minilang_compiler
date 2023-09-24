@@ -12,9 +12,12 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/IR/LegacyPassManager.h"
+
 extern llvm::IRBuilder<> builder;
 extern llvm::LLVMContext context;
 extern llvm::Module *mymodule;
+extern llvm::legacy::FunctionPassManager *FPM;
 extern std::map<std::string, llvm::Value *> NamedValues;
 
 /**
@@ -124,6 +127,8 @@ llvm::Function *FuncDefAST::emitllvm() {
   builder.ClearInsertionPoint();
 
   llvm::verifyFunction(*F);
+
+  FPM->run(*F);
 
   return F;
 }
