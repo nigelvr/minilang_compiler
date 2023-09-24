@@ -18,16 +18,18 @@
 #include "llvm/Transforms/Scalar/SimplifyCFG.h"
 
 
+// Parser globals
 extern FILE *yyin;
 std::vector<AST *> ASTList;
 
+// Compiler globals
 llvm::LLVMContext context;
 llvm::Module *mymodule;
 llvm::IRBuilder<> builder(context);
 std::map<std::string, llvm::Value *> NamedValues;
 llvm::legacy::FunctionPassManager *FPM;
 
-int main(int argc, char **argv) {
+void init_compiler_objects() {
     mymodule = new llvm::Module("test", context);
     FPM = new llvm::legacy::FunctionPassManager(mymodule);
 
@@ -36,34 +38,33 @@ int main(int argc, char **argv) {
     FPM->add(llvm::createGVNPass()); // eliminate common subexpressions
     FPM->add(llvm::createCFGSimplificationPass()); // simplify cfg
     FPM->doInitialization();
+}
 
-
-    printf("top of main\n");
-    yyin = fopen("examples/test.txt", "r");
+int parse_file(const std::string path) {
+    yyin = fopen(path.c_str(), "r");
     if (!yyin) {
         fprintf(stderr, "failed to open input file\n");
         return 1;
     }
-    int result = yyparse();
-    if (result != 0) {
-        fprintf(stderr, "Failed to parse file\n");
-        return result;
-    }
-    
-    // do the function definition
-    llvm::Function *F = ((FuncDefAST *)ASTList.at(0))->emitllvm();
-    // printf("llvm function definition\n");
-    // F->print(llvm::errs());
-    // printf("\n");
-    // function call
-    // llvm::Value *V = ((FuncCallAST *)ASTList.at(1))->emitllvm();
-    llvm::Value *V = ((ExprAST *)ASTList.at(1))->emitllvm();
-    
-    // printf("function call\n");
-    // V->print(llvm::errs());
-    //printf("\n");
-    
-    mymodule->print(llvm::errs(), nullptr);
+    return yyparse();
+}
 
-    return result;
+void driver() {
+    llvm::Function *F = ((FuncDefAST *)ASTList.at(0))->emitllvm();
+    llvm::Value *V = ((ExprAST *)ASTList.at(1))->emitllvm();
+    mymodule->print(llvm::errs(), nullptr);
+}
+
+int main(int argc, char **argv) {
+    init_compiler_objects();
+
+    int parse_result = parse_file("examples/test.txt");
+    if (parse_result) {
+        fprintf(stderr, "failed to open input file\n");
+        return parse_result;
+    }
+
+    driver();
+
+    return parse_result;
 }
