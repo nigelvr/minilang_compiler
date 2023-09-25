@@ -122,15 +122,8 @@ llvm::Function *FuncDefAST::emitllvm() {
   for (auto &Arg : F->args())
     NamedValues[std::string(Arg.getName())] = &Arg;
 
-  // generate code from function parts
-  if (this->funcpart->fpt == FuncPartType::Return) {
-    llvm::Value *ret = this->funcpart->return_fp->emitllvm();
-    builder.CreateRet(ret);
-    builder.ClearInsertionPoint();
-  } else {
-    fprintf(stderr, "Only RET implemented\n");
-    return nullptr;
-  }
+  // generate code from function part
+  this->funcpart->emitllvm();
 
   llvm::verifyFunction(*F);
 
@@ -164,4 +157,19 @@ FuncPart::FuncPart(FuncPartType fpt, ExprAST *return_fp, ExprAST *ifcond, FuncPa
   this->return_fp = return_fp;
   this->ifcond = ifcond;
   this->ifconseq = ifconseq;
+}
+
+void FuncPart::emitllvm() {
+   if (this->fpt == FuncPartType::Return) {
+    llvm::Value *ret = this->return_fp->emitllvm();
+    builder.CreateRet(ret);
+    builder.ClearInsertionPoint();
+  } else {
+    // if block
+    llvm::Value *cond = this->ifcond->emitllvm();
+    // convert cond to boolean
+    cond = builder.CreateFCmpONE(cond, llvm::ConstantFP::get(context, llvm::APFloat(0.0)), "ifcond");
+    
+    fprintf(stderr, "Error: Only RET implemented\n");
+  }
 }

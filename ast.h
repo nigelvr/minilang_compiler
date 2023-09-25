@@ -89,4 +89,5 @@ public:
   ExprAST *return_fp;
   ExprAST *ifcond;
   FuncPart *ifconseq;
+  void emitllvm(); 
 };
