@@ -84,7 +84,8 @@ llvm::Value *BinOpAST::emitllvm()
       case '/':
         return builder.CreateFDiv(Lv, Rv, "divtmp");
       case '<':
-        return builder.CreateFCmpULT(Lv, Rv, "cmptmp");
+        llvm::Value *temp = builder.CreateFCmpULT(Lv, Rv, "cmptmp");
+        return builder.CreateUIToFP(temp, llvm::Type::getDoubleTy(context), "cmttmp_double");
     }
   }
   if (this->value.vt == UValueType::String) {
@@ -96,10 +97,10 @@ llvm::Value *BinOpAST::emitllvm()
 /**
  * Function definition
  */
-FuncDefAST::FuncDefAST(char *value, ParamList *param_list, ExprAST *a) {
+FuncDefAST::FuncDefAST(char *value, ParamList *param_list, FuncPartList *fplist) {
   this->value = make_string_value(value);
   this->param_list = param_list;
-  this->children.push_back(a);
+  this->fplist = fplist;
 }
 
 llvm::Function *FuncDefAST::emitllvm() {
@@ -121,10 +122,22 @@ llvm::Function *FuncDefAST::emitllvm() {
   for (auto &Arg : F->args())
     NamedValues[std::string(Arg.getName())] = &Arg;
 
-  ExprAST *a = (ExprAST *)this->children.at(0);
-  llvm::Value *ret = ((ExprAST *)(children.at(0)))->emitllvm();
-  builder.CreateRet(ret);
-  builder.ClearInsertionPoint();
+  // assume only one funcpart for now
+  FuncPart *fp = this->fplist->fparts.at(0);
+  if (fp->fpt == FuncPartType::Return) {
+    ExprAST *a = fp->return_fp;
+    llvm::Value *ret = fp->return_fp->emitllvm();
+    builder.CreateRet(ret);
+    builder.ClearInsertionPoint();
+  } else {
+    fprintf(stderr, "IF not implemented\n");
+    return nullptr;
+  }
+
+  // ExprAST *a = (ExprAST *)this->children.at(0);
+  // llvm::Value *ret = ((ExprAST *)(children.at(0)))->emitllvm();
+  // builder.CreateRet(ret);
+  // builder.ClearInsertionPoint();
 
   llvm::verifyFunction(*F);
 
@@ -150,4 +163,10 @@ llvm::Value *FuncCallAST::emitllvm() {
   }
 
   return builder.CreateCall(F, evaled_args, "calltmp");
+}
+
+/* Non-AST helpers */
+FuncPart::FuncPart(FuncPartType fpt, ExprAST *ret) {
+  this->fpt = fpt;
+  this->return_fp = ret;
 }

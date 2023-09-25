@@ -7,12 +7,14 @@
 // Forward decl
 class BinOpAST;
 class ExprAST;
+class FuncPart;
 
 /* interface to the lexer */
 extern int yylineno; /* from lexer */
 void yyerror(const char *, ...);
 
 enum class UValueType { String, Integer };
+enum class FuncPartType { Return, If };
 
 struct UValue {
     UValueType vt;
@@ -34,6 +36,10 @@ struct ParamList {
 
 struct ArgList {
   std::vector<ExprAST *> args;
+};
+
+struct FuncPartList {
+  std::vector<FuncPart *> fparts;
 };
 
 /**
@@ -63,8 +69,9 @@ public:
 
 class FuncDefAST : public AST {
 public:
-  FuncDefAST(char *, ParamList*, ExprAST *);
+  FuncDefAST(char *, ParamList*, FuncPartList *);
   ParamList *param_list;
+  FuncPartList *fplist;
   llvm::Function *emitllvm();
 };
 
@@ -73,4 +80,11 @@ public:
   FuncCallAST(char *, ArgList*);
   ArgList *args;
   llvm::Value *emitllvm();
+};
+
+class FuncPart {
+public:
+  FuncPart(FuncPartType, ExprAST *);
+  FuncPartType fpt;
+  ExprAST *return_fp;
 };

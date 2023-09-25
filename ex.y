@@ -18,6 +18,7 @@ extern int yylex();
   struct FuncCallAST *fcall_ast;
   struct ParamList *plist_h;
   struct ArgList *alist_h;
+  struct FuncPartList *fpart_l;
   char *ident;
   int d;
 }
@@ -35,6 +36,7 @@ extern int yylex();
 
 %type <e_ast> exp
 %type <fdef_ast> funcdef
+%type <fpart_l> funcpart
 %type <plist_h> params
 %type <alist_h> args
 
@@ -60,8 +62,14 @@ exp: exp '+' exp    { $$ = new BinOpAST('+', $1, $3); }
    | IDENT '(' args ')' { $$ = new FuncCallAST($1, $3); }
  ;
 
-funcdef: FUNC IDENT '(' params ')' '{' RETURN exp ';' '}' {
-  $$ = new FuncDefAST($2, $4, (BinOpAST *)$8);
+funcdef: FUNC IDENT '(' params ')' '{' funcpart ';' '}' {
+  $$ = new FuncDefAST($2, $4, $7);
+};
+
+funcpart: RETURN exp {
+  FuncPartList *fplist = new FuncPartList();
+  fplist->fparts.push_back(new FuncPart(FuncPartType::Return, (ExprAST *)$2));
+  $$ = fplist;
 };
 
 params: { new ParamList(); }
