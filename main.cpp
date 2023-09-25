@@ -4,8 +4,6 @@
 #include <vector>
 #include "ast.h"
 #include "ex.tab.h"
-// Kaleidoscope JIT
-#include "KaleidoscopeJIT.h"
 // LLVM library
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
