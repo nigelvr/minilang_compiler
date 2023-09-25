@@ -26,6 +26,7 @@ EXP     ([Ee][-+]?[0-9]+)
 
 "return" { return RETURN; }
 "func" { return FUNC; }
+"if" { return IF; }
 
 [a-zA-Z_][a-zA-Z_0-9]* {
     yylval.ident = strdup(yytext);

@@ -18,6 +18,7 @@ extern int yylex();
   struct FuncCallAST *fcall_ast;
   struct ParamList *plist_h;
   struct ArgList *alist_h;
+  struct FuncPart *funcpart_h;
   struct FuncPartList *fpart_l;
   char *ident;
   int d;
@@ -26,6 +27,7 @@ extern int yylex();
 /* declare tokens */
 %token RETURN
 %token FUNC
+%token IF
 %token <d> NUMBER
 %token <ident> IDENT
 
@@ -36,7 +38,7 @@ extern int yylex();
 
 %type <e_ast> exp
 %type <fdef_ast> funcdef
-%type <fpart_l> funcpart
+%type <funcpart_h> funcpart
 %type <plist_h> params
 %type <alist_h> args
 
@@ -67,10 +69,12 @@ funcdef: FUNC IDENT '(' params ')' '{' funcpart ';' '}' {
 };
 
 funcpart: RETURN exp {
-  FuncPartList *fplist = new FuncPartList();
-  fplist->fparts.push_back(new FuncPart(FuncPartType::Return, (ExprAST *)$2));
-  $$ = fplist;
-};
+  $$ = new FuncPart(FuncPartType::Return, (ExprAST *)$2, nullptr, nullptr);
+  }
+  |
+  IF '(' exp ')' '{' funcpart '}' {
+    $$ = new FuncPart(FuncPartType::If, nullptr, $3, $6);
+  };
 
 params: { new ParamList(); }
       | IDENT { 

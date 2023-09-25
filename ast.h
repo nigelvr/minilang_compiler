@@ -69,9 +69,9 @@ public:
 
 class FuncDefAST : public AST {
 public:
-  FuncDefAST(char *, ParamList*, FuncPartList *);
+  FuncDefAST(char *, ParamList*, FuncPart *);
   ParamList *param_list;
-  FuncPartList *fplist;
+  FuncPart *funcpart;
   llvm::Function *emitllvm();
 };
 
@@ -84,7 +84,9 @@ public:
 
 class FuncPart {
 public:
-  FuncPart(FuncPartType, ExprAST *);
+  FuncPart(FuncPartType, ExprAST *, ExprAST *, FuncPart *);
   FuncPartType fpt;
   ExprAST *return_fp;
+  ExprAST *ifcond;
+  FuncPart *ifconseq;
 };

@@ -97,10 +97,10 @@ llvm::Value *BinOpAST::emitllvm()
 /**
  * Function definition
  */
-FuncDefAST::FuncDefAST(char *value, ParamList *param_list, FuncPartList *fplist) {
+FuncDefAST::FuncDefAST(char *value, ParamList *param_list, FuncPart *funcpart) {
   this->value = make_string_value(value);
   this->param_list = param_list;
-  this->fplist = fplist;
+  this->funcpart = funcpart;
 }
 
 llvm::Function *FuncDefAST::emitllvm() {
@@ -122,22 +122,15 @@ llvm::Function *FuncDefAST::emitllvm() {
   for (auto &Arg : F->args())
     NamedValues[std::string(Arg.getName())] = &Arg;
 
-  // assume only one funcpart for now
-  FuncPart *fp = this->fplist->fparts.at(0);
-  if (fp->fpt == FuncPartType::Return) {
-    ExprAST *a = fp->return_fp;
-    llvm::Value *ret = fp->return_fp->emitllvm();
+  // generate code from function parts
+  if (this->funcpart->fpt == FuncPartType::Return) {
+    llvm::Value *ret = this->funcpart->return_fp->emitllvm();
     builder.CreateRet(ret);
     builder.ClearInsertionPoint();
   } else {
-    fprintf(stderr, "IF not implemented\n");
+    fprintf(stderr, "Only RET implemented\n");
     return nullptr;
   }
-
-  // ExprAST *a = (ExprAST *)this->children.at(0);
-  // llvm::Value *ret = ((ExprAST *)(children.at(0)))->emitllvm();
-  // builder.CreateRet(ret);
-  // builder.ClearInsertionPoint();
 
   llvm::verifyFunction(*F);
 
@@ -166,7 +159,9 @@ llvm::Value *FuncCallAST::emitllvm() {
 }
 
 /* Non-AST helpers */
-FuncPart::FuncPart(FuncPartType fpt, ExprAST *ret) {
+FuncPart::FuncPart(FuncPartType fpt, ExprAST *return_fp, ExprAST *ifcond, FuncPart *ifconseq) {
   this->fpt = fpt;
-  this->return_fp = ret;
+  this->return_fp = return_fp;
+  this->ifcond = ifcond;
+  this->ifconseq = ifconseq;
 }
