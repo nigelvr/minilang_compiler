@@ -1,24 +1,22 @@
 CXX   = clang++
-EXE = my_wc
-CXXDEBUG = -g -Wall
-CXXSTD = -std=c++11
 LLVM_FLAGS=$(shell llvm-config --cxxflags --libs engine) 
-CXXFLAGS = $(CXXDEBUG) $(CXXSTD) $(LLVM_FLAGS) -Wno-unused-but-set-variable -Wno-unused-command-line-argument -Wno-deprecated-register -Wno-register
+CXXFLAGS = -g -Wall -std=c++11 $(LLVM_FLAGS) -Wno-unused-but-set-variable -Wno-unused-command-line-argument -Wno-deprecated-register -Wno-register 
 CPPOBJ = ast main minidriver
 SOBJ =  parser lexer
 FILES = $(addsuffix .cpp, $(CPPOBJ))
 OBJS  = $(addsuffix .o, $(CPPOBJ))
+TARGET=minilang
 CLEANLIST =  $(addsuffix .o, $(OBJ)) $(OBJS) miniparser.tab.cc \
 	     miniparser.tab.hh location.hh position.hh \
-	     stack.hh miniparser.output parser.o lexer.o lex.yy.cc ast.o $(EXE)\
+	     stack.hh miniparser.output parser.o lexer.o lex.yy.cc ast.o $(TARGET)\
 
 .PHONY: all
-all: wc
+all: $(TARGET)
 
-wc: $(FILES)
+$(TARGET): $(FILES)
 	$(MAKE) $(SOBJ)
 	$(MAKE) $(OBJS)
-	$(CXX) $(CXXFLAGS) -v -o $(EXE) $(OBJS) parser.o lexer.o $(LIBS)
+	$(CXX) $(CXXFLAGS) -v -o $(TARGET) $(OBJS) parser.o lexer.o $(LIBS)
 
 
 parser: miniparser.yy

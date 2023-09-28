@@ -20,8 +20,6 @@ extern std::unique_ptr<llvm::IRBuilder<>> builder;
 
 AST::~AST() {}
 
-ExprAST::~ExprAST() {}
-
 /**
  * Binary Operators
 */

@@ -17,18 +17,13 @@ class ExprAST;
 */
 class AST {
 public:
-   virtual ~AST();
+   virtual ~AST() = 0;
+   virtual llvm::Value *emitllvm() = 0;
    std::variant<int, std::string> value;
    std::vector<std::shared_ptr<AST>> children;
-
-   virtual llvm::Value *emitllvm() = 0;
 };
 
-class ExprAST : public AST {
-public:
-   virtual ~ExprAST();
-   // virtual llvm::Value *emitllvm();
-};
+class ExprAST : public AST {};
 
 class BinOpAST : public ExprAST {
 public:
