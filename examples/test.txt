@@ -1,2 +1,0 @@
-func foo(x,y) { return (1+2+x)*(x+(1+2)); }
-1+foo(1,2)
