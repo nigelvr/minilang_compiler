@@ -1,14 +1,14 @@
 CXX   = clang++
 LLVM_FLAGS=$(shell llvm-config --cxxflags --libs engine) 
 CXXFLAGS = -g -Wall -std=c++11 $(LLVM_FLAGS) -Wno-unused-but-set-variable -Wno-unused-command-line-argument -Wno-deprecated-register -Wno-register 
-CPPOBJ = ast main minidriver
+CPPOBJ = ast main minidriver emitter
 SOBJ =  parser lexer
 FILES = $(addsuffix .cpp, $(CPPOBJ))
 OBJS  = $(addsuffix .o, $(CPPOBJ))
 TARGET=minilang
 CLEANLIST =  $(addsuffix .o, $(OBJ)) $(OBJS) miniparser.tab.cc \
 	     miniparser.tab.hh location.hh position.hh \
-	     stack.hh miniparser.output parser.o lexer.o lex.yy.cc ast.o $(TARGET)\
+	     stack.hh miniparser.output parser.o lexer.o lex.yy.cc ast.o emitter.o $(TARGET)\
 
 .PHONY: all
 all: $(TARGET)
@@ -33,5 +33,5 @@ test:
 
 .PHONY: clean
 clean:
-	rm -rf $(CLEANLIST) *.tab.* *.output
+	rm -rf $(CLEANLIST) *.tab.* *.output *~
 

@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include "ast.h"
+#include "emitter.h"
 
 // LLVM
 #include "llvm/ADT/APInt.h"
@@ -67,5 +68,3 @@ llvm::Value *BinOpAST::emitllvm()
   }
   return llvm::ConstantFP::get(context, llvm::APFloat((double)std::get<int>(this->value)));
 }
-
-

@@ -5,6 +5,7 @@
 #include <map>
 // driver
 #include "minidriver.hpp"
+#include "emitter.h"
 // LLVM library
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
@@ -52,9 +53,7 @@ int main(const int argc, const char **argv) {
    }
 
    // create function with expression
-   std::vector<llvm::Type *>Doubles(0, llvm::Type::getDoubleTy(context));
-   llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getDoubleTy(context), Doubles, false);
-   llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "foo", mymodule.get());
+   llvm::Function *F = emitter::make_function("foo", std::vector<std::string>());
    llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, "entry", F);
    builder->SetInsertPoint(BB);
 

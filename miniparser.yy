@@ -54,6 +54,7 @@ exp: exp '+' exp    { $$ = std::make_shared<BinOpAST>('+', $1, $3); }
    | '-' exp        { $$ = std::make_shared<BinOpAST>('M', $2, nullptr); }
    | NUMBER         { $$ = std::make_shared<BinOpAST>($1, nullptr, nullptr); }
 
+
 %%
 
 

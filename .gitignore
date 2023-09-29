@@ -3,4 +3,7 @@ a.out
 ex.tab.c
 ex.tab.h
 lex.yy.c
+.vscode*.o
+*.output
+minilang
 .vscode

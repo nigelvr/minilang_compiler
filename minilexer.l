@@ -55,7 +55,6 @@ using namespace std;
 }
 
 \n {
-	// Update line number
         loc->lines();
 }
 
