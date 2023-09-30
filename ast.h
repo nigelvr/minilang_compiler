@@ -33,4 +33,19 @@ public:
    llvm::Value *emitllvm() override;
 };
 
+class VariableExprAST : public ExprAST {
+public:
+  VariableExprAST(std::string name);
+  std::string name;
+  llvm::Value *emitllvm() override;
+};
+
+class FuncDefAST : public AST {
+public:
+   FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<ExprAST> ret);
+   std::string name;
+   std::vector<std::string> param_names;
+   llvm::Value *emitllvm() override;
+};
+
 #endif

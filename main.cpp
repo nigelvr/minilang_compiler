@@ -23,7 +23,7 @@ std::unique_ptr<llvm::Module> mymodule;
 std::unique_ptr<llvm::IRBuilder<>> builder;
 std::unique_ptr<llvm::legacy::FunctionPassManager> FPM;
 
-std::map<std::string, std::shared_ptr<llvm::Value>> NamedValues;
+std::map<std::string, llvm::Value *> NamedValues;
 
 void init_llvm_objects() {
    mymodule = std::make_unique<llvm::Module>("test", context);
@@ -37,7 +37,11 @@ void init_llvm_objects() {
    FPM->doInitialization();
 }
 
-int main(const int argc, const char **argv) {
+int main(int argc, char **argv) {
+
+   std::cout << "argc = " << argc << std::endl;
+   std::cout << "argv1 = " << std::string(argv[1]) << std::endl;
+
    init_llvm_objects();
 
    std::filebuf fb;
@@ -52,12 +56,18 @@ int main(const int argc, const char **argv) {
       return parse_result;
    }
 
+   llvm::Function *F = static_cast<llvm::Function *>(driver.run_program());
+
+   mymodule->print(llvm::errs(), nullptr);
+
    // create function with expression
+   /*
    llvm::Function *F = emitter::make_function("foo", std::vector<std::string>());
    llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, "entry", F);
    builder->SetInsertPoint(BB);
 
    mymodule->print(llvm::errs(), nullptr);
-
+   */
+  
    return 0;
 }

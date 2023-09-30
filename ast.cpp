@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <iostream>
 #include <map>
 #include <string>
 #include "ast.h"
@@ -18,6 +19,8 @@
 extern llvm::LLVMContext context;
 extern std::unique_ptr<llvm::Module> mymodule;
 extern std::unique_ptr<llvm::IRBuilder<>> builder;
+extern std::map<std::string, llvm::Value *> NamedValues;
+extern std::unique_ptr<llvm::legacy::FunctionPassManager> FPM;
 
 AST::~AST() {}
 
@@ -67,4 +70,42 @@ llvm::Value *BinOpAST::emitllvm()
     }
   }
   return llvm::ConstantFP::get(context, llvm::APFloat((double)std::get<int>(this->value)));
+}
+
+VariableExprAST::VariableExprAST(std::string name) {
+  this->name = name;
+}
+
+llvm::Value *VariableExprAST::emitllvm() {
+  llvm::Value *v = NamedValues[this->name];
+  if (!v) {
+    std::cerr << "could not access variable " << this->name << std::endl;
+    return nullptr;
+  }
+  return v;
+}
+
+FuncDefAST::FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<ExprAST> ret) {
+  this->name = name;
+  this->param_names = param_names;
+  this->children.push_back(ret);
+}
+
+llvm::Value *FuncDefAST::emitllvm() {
+  llvm::Function *F = emitter::make_function(this->name, this->param_names);
+  
+  // function body
+  llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, "entry", F);
+  builder->SetInsertPoint(BB);
+  auto ret = this->children.at(0);
+  builder->CreateRet(ret->emitllvm());
+
+  // verify and FPM
+  llvm::verifyFunction(*F);
+  FPM->run(*F);
+
+  // done function
+  builder->ClearInsertionPoint();
+
+  return F;
 }

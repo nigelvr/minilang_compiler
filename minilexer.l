@@ -54,19 +54,19 @@ using namespace std;
 	return token::NUMBER;
 }
 
+[ \t]   {}
+
 \n {
         loc->lines();
 }
 
 . {
 	std::ostringstream err;
-	err << "Unknown character: " << yytext << std::endl;
+	err << "Unknown character: " << yytext << " - " << (int)yytext[0] << std::endl;
 	lexer_error(err.str());
 }
 
 "//".*  {}
-
-[ \t]   {}
 
 %%
 

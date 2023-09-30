@@ -17,20 +17,13 @@ class Driver{
 public:
    Driver(std::istream &in);
    virtual ~Driver() = default;
-   
    int parse();
-
-   void add_word(const std::string &word);
-
-   void set_expression(std::shared_ptr<ExprAST> e);
-
-   std::ostream& print(std::ostream &stream);
+   void set_funcdef(std::shared_ptr<FuncDefAST> funcdef);
+   llvm::Value *run_program();
 private:
    std::shared_ptr<MiniCompiler::Parser> parser;
    std::shared_ptr<MiniCompiler::Scanner> scanner;
-   std::shared_ptr<ExprAST> expr;
-   std::size_t words = 0;
-   std::size_t lines = 0;
+   std::shared_ptr<FuncDefAST> funcdef;
 };
 
 } 
