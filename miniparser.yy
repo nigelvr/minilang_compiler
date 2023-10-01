@@ -39,6 +39,8 @@ namespace MiniCompiler {
 %type <std::shared_ptr<ExprAST>> exp
 %type <std::shared_ptr<FuncDefAST>> funcdef
 %type <std::vector<std::string>> param_names
+%type <std::shared_ptr<StatementAST>> statement
+%type <std::shared_ptr<StatementAST>> return_statment
 
 %%
 program:
@@ -58,8 +60,14 @@ exp: exp '+' exp    { $$ = std::make_shared<BinOpAST>('+', $1, $3); }
    | NUMBER         { $$ = std::make_shared<BinOpAST>($1, nullptr, nullptr); }
    | IDENT          { $$ = std::make_shared<VariableExprAST>($1); }
 
-funcdef: FUNC IDENT '(' param_names ')' '{' RETURN exp ';' '}' {
-   $$ = std::make_shared<FuncDefAST>($2, $4, $8);
+funcdef: FUNC IDENT '(' param_names ')' '{' statement '}' {
+   $$ = std::make_shared<FuncDefAST>($2, $4, $7);
+};
+
+statement: return_statment { $$ = $1; };
+
+return_statment: RETURN exp ';' {
+   $$ = std::make_shared<ReturnAST>($2);
 };
 
 param_names: { $$ = std::vector<std::string>(); }

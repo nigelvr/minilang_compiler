@@ -68,10 +68,18 @@ llvm::Value *VariableExprAST::emitllvm() {
   return v;
 }
 
-FuncDefAST::FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<ExprAST> ret) {
+ReturnAST::ReturnAST(std::shared_ptr<ExprAST> expr) {
+  this->expr = expr;
+}
+
+llvm::Value *ReturnAST::emitllvm() {
+  return this->expr->emitllvm();
+}
+
+FuncDefAST::FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<StatementAST> statement) {
   this->name = name;
   this->param_names = param_names;
-  this->ret = ret;
+  this->statement = statement;
 }
 
 llvm::Value *FuncDefAST::emitllvm() {
@@ -107,7 +115,7 @@ llvm::Value *FuncDefAST::emitllvm() {
   }
 
   // create ret
-  builder->CreateRet(this->ret->emitllvm());
+  builder->CreateRet(this->statement->emitllvm());
 
   // post process
   llvm::verifyFunction(*F);

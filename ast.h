@@ -40,12 +40,21 @@ public:
   llvm::Value *emitllvm() override;
 };
 
+class StatementAST : public AST {};
+
+class ReturnAST : public StatementAST {
+public:
+   ReturnAST(std::shared_ptr<ExprAST> expr);
+   std::shared_ptr<ExprAST> expr;
+   llvm::Value *emitllvm() override;
+};
+
 class FuncDefAST : public AST {
 public:
-   FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<ExprAST> ret);
+   FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<StatementAST> statement);
    std::string name;
    std::vector<std::string> param_names;
-   std::shared_ptr<ExprAST> ret;
+   std::shared_ptr<StatementAST> statement;
    llvm::Value *emitllvm() override;
 };
 
