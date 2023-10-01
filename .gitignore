@@ -1,9 +1,8 @@
-lang
-a.out
-ex.tab.c
-ex.tab.h
-lex.yy.c
-.vscode*.o
+.vscode
+*.o
 *.output
 minilang
-.vscode
+*.tab.*
+lex.*
+location.hh
+position.hh

@@ -13,13 +13,15 @@
 
 namespace MiniCompiler {
 
-class Driver{
+class Driver {
 public:
    Driver(std::istream &in);
    virtual ~Driver() = default;
+
    int parse();
+   
    void set_funcdef(std::shared_ptr<FuncDefAST> funcdef);
-   llvm::Value *run_program();
+   llvm::Value *compile_program();
 private:
    std::shared_ptr<MiniCompiler::Parser> parser;
    std::shared_ptr<MiniCompiler::Scanner> scanner;

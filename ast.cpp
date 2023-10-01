@@ -19,7 +19,7 @@
 extern llvm::LLVMContext context;
 extern std::unique_ptr<llvm::Module> mymodule;
 extern std::unique_ptr<llvm::IRBuilder<>> builder;
-extern std::map<std::string, llvm::Value *> NamedValues;
+extern std::map<std::string, llvm::AllocaInst *> NamedValues;
 extern std::unique_ptr<llvm::legacy::FunctionPassManager> FPM;
 
 AST::~AST() {}
@@ -92,19 +92,45 @@ FuncDefAST::FuncDefAST(std::string name, std::vector<std::string> param_names, s
 }
 
 llvm::Value *FuncDefAST::emitllvm() {
-  llvm::Function *F = emitter::make_function(this->name, this->param_names);
-  
-  // function body
+  // set up function proto
+  // set argument names
+  // set up basic block
+  // do stack allocation for arguments
+  // emit return value
+
+  // function proto
+  std::vector<llvm::Type *>Doubles(param_names.size(), llvm::Type::getDoubleTy(context));
+  llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getDoubleTy(context), Doubles, false);
+  llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, name, mymodule.get());
+
+  // set arg names
+  int idx = 0;
+  for (auto &Arg : F->args()) {
+    Arg.setName(this->param_names.at(idx));
+    idx++;
+  }
+
+  // set up basic block
   llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, "entry", F);
   builder->SetInsertPoint(BB);
-  auto ret = this->children.at(0);
-  builder->CreateRet(ret->emitllvm());
 
-  // verify and FPM
+  // stack allocation for arguments
+  NamedValues.clear();
+  for (auto &Arg : F->args()) {
+      llvm::IRBuilder<> tmp_builder(&F->getEntryBlock(), F->getEntryBlock().begin());
+      llvm::AllocaInst *alloca = tmp_builder.CreateAlloca(llvm::Type::getDoubleTy(context), nullptr, Arg.getName());
+      builder->CreateStore(alloca, &Arg);
+      NamedValues[std::string(Arg.getName())] = alloca;
+  }
+
+  // create ret
+  builder->CreateRet(this->children.at(0)->emitllvm());
+
+  // post process
   llvm::verifyFunction(*F);
   FPM->run(*F);
 
-  // done function
+  // remove insert pointer
   builder->ClearInsertionPoint();
 
   return F;

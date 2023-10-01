@@ -18,6 +18,6 @@ void MiniCompiler::Driver::set_funcdef(std::shared_ptr<FuncDefAST> funcdef) {
    this->funcdef = funcdef;
 }
 
-llvm::Value *MiniCompiler::Driver::run_program() {
+llvm::Value *MiniCompiler::Driver::compile_program() {
    return this->funcdef->emitllvm();
 }

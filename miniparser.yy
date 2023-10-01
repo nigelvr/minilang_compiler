@@ -1,4 +1,5 @@
 %skeleton "lalr1.cc"
+%require "3.2"
 %define api.namespace {MiniCompiler}
 %define api.parser.class {Parser}
 %define api.value.type variant
