@@ -28,8 +28,8 @@ class ExprAST : public AST {};
 class BinOpAST : public ExprAST {
 public:
    BinOpAST(std::variant<int, std::string>, std::shared_ptr<ExprAST>, std::shared_ptr<ExprAST>);
-   std::shared_ptr<ExprAST> getl();
-   std::shared_ptr<ExprAST> getr();
+   std::shared_ptr<ExprAST> l;
+   std::shared_ptr<ExprAST> r;
    llvm::Value *emitllvm() override;
 };
 
@@ -45,6 +45,7 @@ public:
    FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<ExprAST> ret);
    std::string name;
    std::vector<std::string> param_names;
+   std::shared_ptr<ExprAST> ret;
    llvm::Value *emitllvm() override;
 };
 

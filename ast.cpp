@@ -29,43 +29,26 @@ AST::~AST() {}
 */
 BinOpAST::BinOpAST(std::variant<int, std::string> value, std::shared_ptr<ExprAST> l, std::shared_ptr<ExprAST> r) {
   this->value = value;
-  this->children.push_back(l);
-  this->children.push_back(r);
-}
-
-std::shared_ptr<ExprAST> BinOpAST::getl() {
-  if (children.size() >= 1) {
-    return std::static_pointer_cast<ExprAST>(children.at(0));
-  }
-  return nullptr;
-}
-
-std::shared_ptr<ExprAST> BinOpAST::getr() {
-  if (children.size() == 2) {
-    return std::static_pointer_cast<ExprAST>(children.at(1));
-  }
-  return nullptr;
+  this->l = l;
+  this->r = r;
 }
 
 llvm::Value *BinOpAST::emitllvm()
 {
-  auto L = this->getl();
-  auto R = this->getr();
-
-  if (L && R) {
-    llvm::Value *Lv = L->emitllvm();
-    llvm::Value *Rv = R->emitllvm();
+  if (this->l && this->r) {
+    llvm::Value *lv = this->l->emitllvm();
+    llvm::Value *rv = this->r->emitllvm();
     switch(std::get<int>(this->value)) {
       case '+':
-        return builder->CreateFAdd(Lv, Rv, "addtmp");
+        return builder->CreateFAdd(lv, rv, "addtmp");
       case '-':
-        return builder->CreateFSub(Lv, Rv, "subtmp");
+        return builder->CreateFSub(lv, rv, "subtmp");
       case '*':
-        return builder->CreateFMul(Lv, Rv, "multmp");
+        return builder->CreateFMul(lv, rv, "multmp");
       case '/':
-        return builder->CreateFDiv(Lv, Rv, "divtmp");
+        return builder->CreateFDiv(lv, rv, "divtmp");
       case '<':
-        llvm::Value *temp = builder->CreateFCmpULT(Lv, Rv, "cmptmp");
+        llvm::Value *temp = builder->CreateFCmpULT(lv, rv, "cmptmp");
         return builder->CreateUIToFP(temp, llvm::Type::getDoubleTy(context), "cmttmp_double");
     }
   }
@@ -88,7 +71,7 @@ llvm::Value *VariableExprAST::emitllvm() {
 FuncDefAST::FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<ExprAST> ret) {
   this->name = name;
   this->param_names = param_names;
-  this->children.push_back(ret);
+  this->ret = ret;
 }
 
 llvm::Value *FuncDefAST::emitllvm() {
@@ -124,7 +107,7 @@ llvm::Value *FuncDefAST::emitllvm() {
   }
 
   // create ret
-  builder->CreateRet(this->children.at(0)->emitllvm());
+  builder->CreateRet(this->ret->emitllvm());
 
   // post process
   llvm::verifyFunction(*F);
