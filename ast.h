@@ -49,6 +49,15 @@ public:
    llvm::Value *emitllvm() override;
 };
 
+class BranchAST : public StatementAST {
+public:
+   BranchAST(std::shared_ptr<ExprAST> cond, std::shared_ptr<StatementAST> ifconseq, std::shared_ptr<StatementAST> elseconseq);
+   std::shared_ptr<ExprAST> cond;
+   std::shared_ptr<StatementAST> ifconseq;
+   std::shared_ptr<StatementAST> elseconseq;
+   llvm::Value *emitllvm() override;
+};
+
 class FuncDefAST : public AST {
 public:
    FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<StatementAST> statement);

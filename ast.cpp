@@ -55,6 +55,9 @@ llvm::Value *BinOpAST::emitllvm()
   return llvm::ConstantFP::get(context, llvm::APFloat((double)std::get<int>(this->value)));
 }
 
+/**
+ * Variables
+*/
 VariableExprAST::VariableExprAST(std::string name) {
   this->name = name;
 }
@@ -69,12 +72,80 @@ llvm::Value *VariableExprAST::emitllvm() {
   return builder->CreateLoad(v->getAllocatedType(), v, this->name.c_str());
 }
 
+/**
+ * Statements
+ * 
+ * ReturnAST
+ * BranchAST
+*/
+
+/**
+ * Return statement
+*/
 ReturnAST::ReturnAST(std::shared_ptr<ExprAST> expr) {
   this->expr = expr;
 }
 
 llvm::Value *ReturnAST::emitllvm() {
   return this->expr->emitllvm();
+}
+
+/**
+ * Branch, i.e. If statement
+*/
+BranchAST::BranchAST(std::shared_ptr<ExprAST> cond, std::shared_ptr<StatementAST> ifconseq, std::shared_ptr<StatementAST> elseconseq) {
+  this->cond = cond;
+  this->ifconseq = ifconseq;
+  this->elseconseq = elseconseq;
+}
+
+llvm::Value *BranchAST::emitllvm() {
+  llvm::Value *condv = this->cond->emitllvm();
+
+  // convert bool to float
+  condv = builder->CreateFCmpONE(condv, llvm::ConstantFP::get(context, llvm::APFloat(0.0)), "ifcond");
+
+  llvm::Function *F = builder->GetInsertBlock()->getParent();
+
+  // set up basic blocks
+  llvm::BasicBlock *ifconseq_block = llvm::BasicBlock::Create(context, "ifconseq", F);
+  llvm::BasicBlock *elseconseq_block = llvm::BasicBlock::Create(context, "elseconseq");
+  llvm::BasicBlock *merge_block = llvm::BasicBlock::Create(context, "merge");
+
+  // cond branch instruction
+  builder->CreateCondBr(condv, ifconseq_block, elseconseq_block);
+
+  // ifconseq
+  builder->SetInsertPoint(ifconseq_block);
+  llvm::Value *ifconseq_v = this->ifconseq->emitllvm();
+  if (!ifconseq_v) {
+    return nullptr;
+  }
+  builder->CreateBr(merge_block);
+
+  // relaign ifconseq block
+  ifconseq_block = builder->GetInsertBlock();
+
+  // elseconseq
+  F->insert(F->end(), elseconseq_block);
+  builder->SetInsertPoint(elseconseq_block);
+  llvm::Value *elseconseq_v = this->elseconseq->emitllvm();
+  if (!elseconseq_v) {
+    return nullptr;
+  }
+  builder->CreateBr(merge_block);
+
+  // realign elseconseq block
+  elseconseq_block = builder->GetInsertBlock();
+
+  // merge block
+  F->insert(F->end(), merge_block);
+  builder->SetInsertPoint(merge_block);
+  llvm::PHINode *pn = builder->CreatePHI(llvm::Type::getDoubleTy(context), 2, "phitmp");
+
+  pn->addIncoming(ifconseq_v, ifconseq_block);
+  pn->addIncoming(elseconseq_v, elseconseq_block);
+  return pn;
 }
 
 FuncDefAST::FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<StatementAST> statement) {

@@ -42,6 +42,7 @@ using namespace std;
 
 "return" { return token::RETURN; }
 "func" { return token::FUNC; }
+"else" { return token::ELSE; }
 "if" { return token::IF; }
 
 [a-zA-Z_][a-zA-Z_0-9]* {

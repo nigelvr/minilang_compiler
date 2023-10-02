@@ -37,6 +37,7 @@ namespace MiniCompiler {
 %token END 0 "end of file"
 %token RETURN
 %token FUNC
+%token ELSE
 %token IF
 %token <std::string> IDENT
 %token <int>	     NUMBER
@@ -46,6 +47,7 @@ namespace MiniCompiler {
 %type <std::vector<std::string>> param_names
 %type <std::shared_ptr<StatementAST>> statement
 %type <std::shared_ptr<StatementAST>> return_statment
+%type <std::shared_ptr<StatementAST>> branch_statment
 
 %%
 program:
@@ -69,11 +71,20 @@ funcdef: FUNC IDENT '(' param_names ')' '{' statement '}' {
    $$ = std::make_shared<FuncDefAST>($2, $4, $7);
 };
 
-statement: return_statment { $$ = $1; };
+statement: return_statment { $$ = $1; }
+         | branch_statment { $$ = $1; }
 
 return_statment: RETURN exp ';' {
    $$ = std::make_shared<ReturnAST>($2);
 };
+
+branch_statment: IF '(' exp ')' '{' statement '}' {
+   $$ = std::make_shared<BranchAST>($3, $6, nullptr);
+   }
+   |
+   IF '(' exp ')' '{' statement '}' ELSE '{' statement '}' {
+      $$ = std::make_shared<BranchAST>($3, $6, $10);
+   };
 
 param_names: { $$ = std::vector<std::string>(); }
       | IDENT {
