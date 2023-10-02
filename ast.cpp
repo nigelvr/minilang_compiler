@@ -60,12 +60,13 @@ VariableExprAST::VariableExprAST(std::string name) {
 }
 
 llvm::Value *VariableExprAST::emitllvm() {
-  llvm::Value *v = NamedValues[this->name];
+  llvm::AllocaInst *v = NamedValues[this->name];
   if (!v) {
     std::cerr << "could not access variable " << this->name << std::endl;
     return nullptr;
   }
-  return v;
+  // return v;
+  return builder->CreateLoad(v->getAllocatedType(), v, this->name.c_str());
 }
 
 ReturnAST::ReturnAST(std::shared_ptr<ExprAST> expr) {
@@ -110,7 +111,7 @@ llvm::Value *FuncDefAST::emitllvm() {
   for (auto &Arg : F->args()) {
       llvm::IRBuilder<> tmp_builder(&F->getEntryBlock(), F->getEntryBlock().begin());
       llvm::AllocaInst *alloca = tmp_builder.CreateAlloca(llvm::Type::getDoubleTy(context), nullptr, Arg.getName());
-      builder->CreateStore(alloca, &Arg);
+      builder->CreateStore(&Arg, alloca);
       NamedValues[std::string(Arg.getName())] = alloca;
   }
 

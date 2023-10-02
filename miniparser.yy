@@ -29,6 +29,11 @@ namespace MiniCompiler {
 #define yylex scanner.yylex
 }
 
+%left '<'
+%left '+' '-'
+%left '*' '/'
+%left UMINUS
+
 %token END 0 "end of file"
 %token RETURN
 %token FUNC
@@ -56,7 +61,7 @@ exp: exp '+' exp    { $$ = std::make_shared<BinOpAST>('+', $1, $3); }
    | exp '/' exp    { $$ = std::make_shared<BinOpAST>('/', $1, $3); }
    | exp '<' exp    { $$ = std::make_shared<BinOpAST>('<', $1, $3); }
    | '(' exp ')'    { $$ = $2; }
-   | '-' exp        { $$ = std::make_shared<BinOpAST>('M', $2, nullptr); }
+   | '-' exp %prec UMINUS        { $$ = std::make_shared<BinOpAST>('M', $2, nullptr); }
    | NUMBER         { $$ = std::make_shared<BinOpAST>($1, nullptr, nullptr); }
    | IDENT          { $$ = std::make_shared<VariableExprAST>($1); }
 
