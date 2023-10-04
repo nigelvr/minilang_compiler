@@ -1,7 +1,0 @@
-func foo(a,b) {
-    if (a < 10) {
-        return 1;
-    } else {
-        return a+b;
-    }
-}

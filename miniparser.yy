@@ -46,6 +46,7 @@ namespace MiniCompiler {
 %type <std::shared_ptr<FuncDefAST>> funcdef
 %type <std::vector<std::string>> param_names
 %type <std::shared_ptr<StatementAST>> statement
+%type <std::vector<StatementAST>> statement_block
 %type <std::shared_ptr<StatementAST>> return_statment
 %type <std::shared_ptr<StatementAST>> branch_statment
 
@@ -71,6 +72,18 @@ funcdef: FUNC IDENT '(' param_names ')' '{' statement '}' {
    $$ = std::make_shared<FuncDefAST>($2, $4, $7);
 };
 
+statement_block: { $$ = std::vector<StatementAST>(); }
+               | statement {
+                  std::vector<StatementAST> s();
+                  s.push_back($1);
+                  $$ = s;
+               }
+               | statement_block statement {
+                  std::vector<StatementAST> s = $1;
+                  s.push_back($2);
+                  $$ = s;
+               };
+
 statement: return_statment { $$ = $1; }
          | branch_statment { $$ = $1; }
 
@@ -79,10 +92,12 @@ return_statment: RETURN exp ';' {
 };
 
 branch_statment: IF '(' exp ')' '{' statement '}' {
+   std::cout << "constructing simple if" << std::endl;
    $$ = std::make_shared<BranchAST>($3, $6, nullptr);
    }
    |
    IF '(' exp ')' '{' statement '}' ELSE '{' statement '}' {
+      std::cout << "constructing if else" << std::endl;
       $$ = std::make_shared<BranchAST>($3, $6, $10);
    };
 
