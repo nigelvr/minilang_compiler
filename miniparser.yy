@@ -46,7 +46,7 @@ namespace MiniCompiler {
 %type <std::shared_ptr<FuncDefAST>> funcdef
 %type <std::vector<std::string>> param_names
 %type <std::shared_ptr<StatementAST>> statement
-%type <std::vector<StatementAST>> statement_block
+%type <std::vector<std::shared_ptr<StatementAST>>> statement_block
 %type <std::shared_ptr<StatementAST>> return_statment
 %type <std::shared_ptr<StatementAST>> branch_statment
 
@@ -68,20 +68,22 @@ exp: exp '+' exp    { $$ = std::make_shared<BinOpAST>('+', $1, $3); }
    | NUMBER         { $$ = std::make_shared<BinOpAST>($1, nullptr, nullptr); }
    | IDENT          { $$ = std::make_shared<VariableExprAST>($1); }
 
-funcdef: FUNC IDENT '(' param_names ')' '{' statement '}' {
+funcdef: FUNC IDENT '(' param_names ')' '{' statement_block '}' {
+   // std::vector<std::shared_ptr<StatementAST>> statements;
+   // statements.push_back($7);
    $$ = std::make_shared<FuncDefAST>($2, $4, $7);
 };
 
-statement_block: { $$ = std::vector<StatementAST>(); }
+statement_block: { std::vector<std::shared_ptr<StatementAST>> statements; $$ = statements; }
                | statement {
-                  std::vector<StatementAST> s();
-                  s.push_back($1);
-                  $$ = s;
+                  std::vector<std::shared_ptr<StatementAST>> statements;
+                  statements.push_back($1);
+                  $$ = statements;
                }
                | statement_block statement {
-                  std::vector<StatementAST> s = $1;
-                  s.push_back($2);
-                  $$ = s;
+                  std::vector<std::shared_ptr<StatementAST>> statements = $1;
+                  statements.push_back($2);
+                  $$ = statements;
                };
 
 statement: return_statment { $$ = $1; }

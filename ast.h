@@ -60,10 +60,11 @@ public:
 
 class FuncDefAST : public AST {
 public:
-   FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<StatementAST> statement);
+   // FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<StatementAST> statement);
+   FuncDefAST(std::string name, std::vector<std::string> param_names, std::vector<std::shared_ptr<StatementAST>> statements);
    std::string name;
    std::vector<std::string> param_names;
-   std::shared_ptr<StatementAST> statement;
+   std::vector<std::shared_ptr<StatementAST>> statements;
    llvm::Value *emitllvm() override;
 };
 

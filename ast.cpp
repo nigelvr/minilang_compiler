@@ -119,22 +119,22 @@ llvm::Value *BranchAST::emitllvm() {
   // ifconseq
   builder->SetInsertPoint(ifconseq_block);
   this->ifconseq->emitllvm();
+  builder->SetInsertPoint(elseconseq_block);
 
   // elseconseq
   if (!this->elseconseq) {
     std::cout << "not emitting elseconseq" << std::endl;
     return nullptr;
   }
-  builder->SetInsertPoint(elseconseq_block);
   this->elseconseq->emitllvm();
 
   return nullptr;
 }
 
-FuncDefAST::FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<StatementAST> statement) {
+FuncDefAST::FuncDefAST(std::string name, std::vector<std::string> param_names, std::vector<std::shared_ptr<StatementAST>> statements) {
   this->name = name;
   this->param_names = param_names;
-  this->statement = statement;
+  this->statements = statements;
 }
 
 llvm::Value *FuncDefAST::emitllvm() {
@@ -170,7 +170,10 @@ llvm::Value *FuncDefAST::emitllvm() {
   }
 
   // run the return statement
-  this->statement->emitllvm();
+  // this->statements.at(0)->emitllvm();
+  for (auto &S : this->statements) {
+    S->emitllvm();
+  }
 
   // post process
   llvm::verifyFunction(*F);
