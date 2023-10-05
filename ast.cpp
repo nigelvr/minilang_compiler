@@ -205,3 +205,19 @@ llvm::Value *FuncDefAST::emitllvm() {
 
   return F;
 }
+
+FuncCallAST::FuncCallAST(std::string name, std::vector<std::shared_ptr<ExprAST>> param_values) {
+  this->name = name;
+  this->param_values = param_values;
+}
+
+llvm::Value *FuncCallAST::emitllvm() {
+  llvm::Function *F = mymodule->getFunction(this->name);
+
+  std::vector<llvm::Value *> args;
+  for (auto &p : this->param_values) {
+    args.push_back(p->emitllvm());
+  }
+
+  return builder->CreateCall(F, args, "calltmp");
+}

@@ -51,7 +51,7 @@ namespace MiniCompiler {
 %type <std::shared_ptr<StatementAST>> return_statment
 %type <std::shared_ptr<StatementAST>> branch_statment
 %type <std::shared_ptr<AssignmentAST>> assignment_statement
-%type <std::vector<std::shared_ptr<ExprAST>> param_values
+%type <std::vector<std::shared_ptr<ExprAST>>> param_values
 
 %%
 program:
@@ -70,7 +70,7 @@ exp: exp '+' exp    { $$ = std::make_shared<BinOpAST>('+', $1, $3); }
    | '-' exp %prec UMINUS        { $$ = std::make_shared<BinOpAST>('M', $2, nullptr); }
    | NUMBER         { $$ = std::make_shared<BinOpAST>($1, nullptr, nullptr); }
    | IDENT          { $$ = std::make_shared<VariableExprAST>($1); }
-   | IDENT '(' param_values ')' { $$}
+   | IDENT '(' param_values ')' { $$ = std::make_shared<FuncCallAST>($1, $3); }
 
 param_values: { $$ = std::vector<std::shared_ptr<ExprAST>>(); }
       | exp {

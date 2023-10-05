@@ -74,4 +74,14 @@ public:
    llvm::Value *emitllvm() override;
 };
 
+class FuncCallAST : public ExprAST {
+public:
+   FuncCallAST(std::string name, std::vector<std::shared_ptr<ExprAST>> param_values);
+   std::string name;
+   std::vector<std::shared_ptr<ExprAST>> param_values;
+   llvm::Value *emitllvm() override;
+};
+
+
+
 #endif
