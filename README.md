@@ -3,6 +3,10 @@
 Compiler for a mini imperative programming language, targetting LLVM. It produces LLVM IR
 which can be compiled to object code.
 
+Lexer/Parser written with Flex and Bison.
+
+Uses the LLVM C++ API to generate LLVM IR.
+
 WIP
 
 examples:
