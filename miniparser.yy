@@ -51,6 +51,7 @@ namespace MiniCompiler {
 %type <std::shared_ptr<StatementAST>> return_statment
 %type <std::shared_ptr<StatementAST>> branch_statment
 %type <std::shared_ptr<AssignmentAST>> assignment_statement
+%type <std::vector<std::shared_ptr<ExprAST>> param_values
 
 %%
 program:
@@ -69,6 +70,19 @@ exp: exp '+' exp    { $$ = std::make_shared<BinOpAST>('+', $1, $3); }
    | '-' exp %prec UMINUS        { $$ = std::make_shared<BinOpAST>('M', $2, nullptr); }
    | NUMBER         { $$ = std::make_shared<BinOpAST>($1, nullptr, nullptr); }
    | IDENT          { $$ = std::make_shared<VariableExprAST>($1); }
+   | IDENT '(' param_values ')' { $$}
+
+param_values: { $$ = std::vector<std::shared_ptr<ExprAST>>(); }
+      | exp {
+         std::vector<std::shared_ptr<ExprAST>> params; 
+         params.push_back($1);
+         $$ = params;
+      }
+      | param_values ',' exp {
+         std::vector<std::shared_ptr<ExprAST>> params = $1;
+         params.push_back($3);
+         $$ = params;
+      };
 
 funcdef: FUNC IDENT '(' param_names ')' '{' statement_block '}' {
    std::cout << "constructing function: " << $2 << std::endl;

@@ -2,5 +2,6 @@ func foo(a,b) {
     if (a < b) {
         return a;
     }
+    x = 5;
     return b;
 }
