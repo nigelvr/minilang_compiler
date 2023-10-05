@@ -76,7 +76,6 @@ llvm::Value *VariableExprAST::emitllvm() {
     std::cerr << "could not access variable " << this->name << std::endl;
     return nullptr;
   }
-  // return v;
   return builder->CreateLoad(v->getAllocatedType(), v, this->name.c_str());
 }
 
@@ -148,7 +147,11 @@ AssignmentAST::AssignmentAST(std::string ident, std::shared_ptr<ExprAST> expr) {
 }
 
 llvm::Value *AssignmentAST::emitllvm() {
-  return nullptr;
+  llvm::Function *F = builder->GetInsertBlock()->getParent();
+  llvm::AllocaInst *alloca = make_alloca(F, this->ident);
+  builder->CreateStore(this->expr->emitllvm(), alloca);
+  NamedValues[this->ident] = alloca;
+  return alloca;
 }
 
 FuncDefAST::FuncDefAST(std::string name, std::vector<std::string> param_names, std::vector<std::shared_ptr<StatementAST>> statements) {

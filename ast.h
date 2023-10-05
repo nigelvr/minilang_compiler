@@ -20,7 +20,6 @@ public:
    virtual ~AST() = 0;
    virtual llvm::Value *emitllvm() = 0;
    std::variant<int, std::string> value;
-   std::vector<std::shared_ptr<AST>> children;
 };
 
 class ExprAST : public AST {};
@@ -68,7 +67,6 @@ public:
 
 class FuncDefAST : public AST {
 public:
-   // FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<StatementAST> statement);
    FuncDefAST(std::string name, std::vector<std::string> param_names, std::vector<std::shared_ptr<StatementAST>> statements);
    std::string name;
    std::vector<std::string> param_names;
