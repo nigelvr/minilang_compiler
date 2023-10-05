@@ -29,19 +29,20 @@ namespace MiniCompiler {
 #define yylex scanner.yylex
 }
 
-%left '='
-%left '<'
-%left '+' '-'
-%left '*' '/'
-%left UMINUS
-
 %token END 0 "end of file"
 %token RETURN
 %token FUNC
 %token ELSE
 %token IF
+%token EQ
 %token <std::string> IDENT
 %token <int>	     NUMBER
+
+%left '='
+%left EQ '<'
+%left '+' '-'
+%left '*' '/'
+%left UMINUS
 
 %type <std::shared_ptr<ExprAST>> exp
 %type <std::shared_ptr<FuncDefAST>> funcdef
@@ -61,15 +62,16 @@ program:
        }
 ;
 
-exp: exp '+' exp    { $$ = std::make_shared<BinOpAST>('+', $1, $3); }
-   | exp '-' exp    { $$ = std::make_shared<BinOpAST>('-', $1, $3); }
-   | exp '*' exp    { $$ = std::make_shared<BinOpAST>('*', $1, $3); }
-   | exp '/' exp    { $$ = std::make_shared<BinOpAST>('/', $1, $3); }
-   | exp '<' exp    { $$ = std::make_shared<BinOpAST>('<', $1, $3); }
+exp: exp '+' exp    { $$ = std::make_shared<BinOpAST>(BinOpType::PLUS, $1, $3); }
+   | exp '-' exp    { $$ = std::make_shared<BinOpAST>(BinOpType::MINUS, $1, $3); }
+   | exp '*' exp    { $$ = std::make_shared<BinOpAST>(BinOpType::TIMES, $1, $3); }
+   | exp '/' exp    { $$ = std::make_shared<BinOpAST>(BinOpType::DIV, $1, $3); }
+   | exp '<' exp    { $$ = std::make_shared<BinOpAST>(BinOpType::LT, $1, $3); }
+   | exp EQ exp     { $$ = std::make_shared<BinOpAST>(BinOpType::EQ, $1, $3); }
    | '(' exp ')'    { $$ = $2; }
    | '-' exp %prec UMINUS        {
       std::shared_ptr<NumberAST> zero = std::make_shared<NumberAST>(0.0); 
-      $$ = std::make_shared<BinOpAST>('-', zero, $2);
+      $$ = std::make_shared<BinOpAST>(BinOpType::MINUS, zero, $2);
    }
    | NUMBER         { $$ = std::make_shared<NumberAST>($1); }
    | IDENT          { $$ = std::make_shared<VariableExprAST>($1); }

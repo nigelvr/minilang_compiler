@@ -14,7 +14,7 @@ enum class BinOpType {
    MINUS,
    TIMES,
    DIV,
-   LE,
+   LT,
    EQ
 };
 
@@ -43,8 +43,8 @@ public:
 
 class BinOpAST : public ExprAST {
 public:
-   BinOpAST(int, std::shared_ptr<ExprAST>, std::shared_ptr<ExprAST>);
-   int value;
+   BinOpAST(BinOpType, std::shared_ptr<ExprAST>, std::shared_ptr<ExprAST>);
+   BinOpType bin_op_type;
    std::shared_ptr<ExprAST> l;
    std::shared_ptr<ExprAST> r;
    llvm::Value *emitllvm() override;

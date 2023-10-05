@@ -48,13 +48,13 @@ llvm::Value *NumberAST::emitllvm() {
 /**
  * Binary Operators
 */
-BinOpAST::BinOpAST(int value, std::shared_ptr<ExprAST> l, std::shared_ptr<ExprAST> r) {
+BinOpAST::BinOpAST(BinOpType bin_op_type, std::shared_ptr<ExprAST> l, std::shared_ptr<ExprAST> r) {
   if (!l || !r) {
     std::cerr << "Error constructing BinOpAST: both l and r are null" << std::endl;
     exit(1);
   }
 
-  this->value = value;
+  this->bin_op_type = bin_op_type;
   this->l = l;
   this->r = r;
 }
@@ -64,18 +64,22 @@ llvm::Value *BinOpAST::emitllvm()
   if (this->l && this->r) {
     llvm::Value *lv = this->l->emitllvm();
     llvm::Value *rv = this->r->emitllvm();
-    switch(this->value) {
-      case '+':
+    llvm::Value *temp;
+    switch(this->bin_op_type) {
+      case BinOpType::PLUS:
         return builder->CreateFAdd(lv, rv, "addtmp");
-      case '-':
+      case BinOpType::MINUS:
         return builder->CreateFSub(lv, rv, "subtmp");
-      case '*':
+      case BinOpType::TIMES:
         return builder->CreateFMul(lv, rv, "multmp");
-      case '/':
+      case BinOpType::DIV:
         return builder->CreateFDiv(lv, rv, "divtmp");
-      case '<':
-        llvm::Value *temp = builder->CreateFCmpULT(lv, rv, "cmptmp");
-        return builder->CreateUIToFP(temp, llvm::Type::getDoubleTy(context), "cmttmp_double");
+      case BinOpType::LT:
+        temp = builder->CreateFCmpULT(lv, rv, "cmp_lt_tmp");
+        return builder->CreateUIToFP(temp, llvm::Type::getDoubleTy(context), "cmttmp_lt_double");
+      case BinOpType::EQ:
+        temp = builder->CreateFCmpUEQ(lv, rv, "cmp_eq_tmp");
+        return builder->CreateUIToFP(temp, llvm::Type::getDoubleTy(context), "cmttmp_eq_double");
     }
   }
   return nullptr;

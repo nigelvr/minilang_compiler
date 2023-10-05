@@ -44,6 +44,7 @@ using namespace std;
 "func" { return token::FUNC; }
 "else" { return token::ELSE; }
 "if" { return token::IF; }
+"==" { return token::EQ; }
 
 [a-zA-Z_][a-zA-Z_0-9]* {
 	yylval->build<std::string>(yytext);
