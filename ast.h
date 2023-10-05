@@ -30,14 +30,21 @@ class AST {
 public:
    virtual ~AST() = 0;
    virtual llvm::Value *emitllvm() = 0;
-   std::variant<int, std::string> value;
 };
 
 class ExprAST : public AST {};
 
+class NumberAST : public ExprAST {
+public:
+   NumberAST(double value);
+   double value;
+   llvm::Value *emitllvm() override;
+};
+
 class BinOpAST : public ExprAST {
 public:
-   BinOpAST(std::variant<int, std::string>, std::shared_ptr<ExprAST>, std::shared_ptr<ExprAST>);
+   BinOpAST(int, std::shared_ptr<ExprAST>, std::shared_ptr<ExprAST>);
+   int value;
    std::shared_ptr<ExprAST> l;
    std::shared_ptr<ExprAST> r;
    llvm::Value *emitllvm() override;

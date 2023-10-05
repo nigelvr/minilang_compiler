@@ -67,8 +67,11 @@ exp: exp '+' exp    { $$ = std::make_shared<BinOpAST>('+', $1, $3); }
    | exp '/' exp    { $$ = std::make_shared<BinOpAST>('/', $1, $3); }
    | exp '<' exp    { $$ = std::make_shared<BinOpAST>('<', $1, $3); }
    | '(' exp ')'    { $$ = $2; }
-   | '-' exp %prec UMINUS        { $$ = std::make_shared<BinOpAST>('M', $2, nullptr); }
-   | NUMBER         { $$ = std::make_shared<BinOpAST>($1, nullptr, nullptr); }
+   | '-' exp %prec UMINUS        {
+      std::shared_ptr<NumberAST> zero = std::make_shared<NumberAST>(0.0); 
+      $$ = std::make_shared<BinOpAST>('-', zero, $2);
+   }
+   | NUMBER         { $$ = std::make_shared<NumberAST>($1); }
    | IDENT          { $$ = std::make_shared<VariableExprAST>($1); }
    | IDENT '(' param_values ')' { $$ = std::make_shared<FuncCallAST>($1, $3); }
 

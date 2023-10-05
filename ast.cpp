@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <string>
@@ -33,9 +34,26 @@ llvm::AllocaInst *make_alloca(llvm::Function *F, llvm::StringRef varname) {
 AST::~AST() {}
 
 /**
+ * Numbers
+*/
+NumberAST::NumberAST(double value) {
+  this->value = value;
+}
+
+llvm::Value *NumberAST::emitllvm() {
+  std::cout << "NumberAST::emitllvm" << std::endl;
+  return llvm::ConstantFP::get(context, llvm::APFloat(this->value));
+}
+
+/**
  * Binary Operators
 */
-BinOpAST::BinOpAST(std::variant<int, std::string> value, std::shared_ptr<ExprAST> l, std::shared_ptr<ExprAST> r) {
+BinOpAST::BinOpAST(int value, std::shared_ptr<ExprAST> l, std::shared_ptr<ExprAST> r) {
+  if (!l || !r) {
+    std::cerr << "Error constructing BinOpAST: both l and r are null" << std::endl;
+    exit(1);
+  }
+
   this->value = value;
   this->l = l;
   this->r = r;
@@ -46,7 +64,7 @@ llvm::Value *BinOpAST::emitllvm()
   if (this->l && this->r) {
     llvm::Value *lv = this->l->emitllvm();
     llvm::Value *rv = this->r->emitllvm();
-    switch(std::get<int>(this->value)) {
+    switch(this->value) {
       case '+':
         return builder->CreateFAdd(lv, rv, "addtmp");
       case '-':
@@ -60,7 +78,7 @@ llvm::Value *BinOpAST::emitllvm()
         return builder->CreateUIToFP(temp, llvm::Type::getDoubleTy(context), "cmttmp_double");
     }
   }
-  return llvm::ConstantFP::get(context, llvm::APFloat((double)std::get<int>(this->value)));
+  return nullptr;
 }
 
 /**
