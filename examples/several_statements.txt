@@ -1,0 +1,9 @@
+func foo(x,y) {
+    a = 1;
+    b = 2;
+    b = b+2;
+    if (x < y) {
+        return a+b;
+    }
+    return b;
+}

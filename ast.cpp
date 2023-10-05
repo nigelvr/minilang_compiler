@@ -154,6 +154,23 @@ llvm::Value *AssignmentAST::emitllvm() {
   return alloca;
 }
 
+/**
+ * While loop
+*/
+WhileLoopAST::WhileLoopAST(std::shared_ptr<ExprAST> cond, std::vector<std::shared_ptr<StatementAST>> statements) {
+  this->cond = cond;
+  this->statements = statements;
+}
+
+llvm::Value *WhileLoopAST::emitllvm() {
+  llvm::Value *condv = this->cond->emitllvm();
+  condv = builder->CreateFCmpONE(condv, llvm::ConstantFP::get(context, llvm::APFloat(0.0)), "ifcond");
+  return nullptr;
+}
+
+/**
+ * Function definition
+*/
 FuncDefAST::FuncDefAST(std::string name, std::vector<std::string> param_names, std::vector<std::shared_ptr<StatementAST>> statements) {
   this->name = name;
   this->param_names = param_names;
@@ -206,6 +223,9 @@ llvm::Value *FuncDefAST::emitllvm() {
   return F;
 }
 
+/**
+ * Function call
+*/
 FuncCallAST::FuncCallAST(std::string name, std::vector<std::shared_ptr<ExprAST>> param_values) {
   this->name = name;
   this->param_values = param_values;

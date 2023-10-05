@@ -8,6 +8,17 @@
 // LLVM
 #include "llvm/IR/Value.h"
 
+// Builtin binary operator types
+enum class BinOpType {
+   PLUS,
+   MINUS,
+   TIMES,
+   DIV,
+   LE,
+   EQ
+};
+
+
 // Forward decl
 class BinOpAST;
 class ExprAST;
@@ -62,6 +73,14 @@ public:
    AssignmentAST(std::string ident, std::shared_ptr<ExprAST> expr);
    std::string ident;
    std::shared_ptr<ExprAST> expr;
+   llvm::Value *emitllvm() override;
+};
+
+class WhileLoopAST : public StatementAST {
+public:
+   WhileLoopAST(std::shared_ptr<ExprAST> cond, std::vector<std::shared_ptr<StatementAST>> statements);
+   std::shared_ptr<ExprAST> cond;
+   std::vector<std::shared_ptr<StatementAST>> statements;
    llvm::Value *emitllvm() override;
 };
 
