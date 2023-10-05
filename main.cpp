@@ -41,14 +41,18 @@ int main(int argc, char **argv) {
    init_llvm_objects();
 
    std::filebuf fb;
-   fb.open(std::string(argv[1]), std::ios::in);
+   if (!fb.open(std::string(argv[1]), std::ios::in)) {
+      std::cerr << "Error: Could not open file " << argv[1] << std::endl;
+      return 1;
+   }
+
    std::istream is(&fb);
 
    MiniCompiler::Driver driver(is);
    
    int parse_result = driver.parse();
    if (parse_result) {
-      std::cerr << "Failed to parse file " << std::string(argv[1]) << std::endl;
+      std::cerr << "Error: Failed to parse file " << std::string(argv[1]) << std::endl;
       return parse_result;
    }
 

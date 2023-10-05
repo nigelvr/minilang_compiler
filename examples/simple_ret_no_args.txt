@@ -1,3 +1,4 @@
 func foo() {
+    // a comment
     return 1;
 }

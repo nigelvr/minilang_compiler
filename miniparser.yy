@@ -29,6 +29,7 @@ namespace MiniCompiler {
 #define yylex scanner.yylex
 }
 
+%left '='
 %left '<'
 %left '+' '-'
 %left '*' '/'
@@ -49,6 +50,7 @@ namespace MiniCompiler {
 %type <std::vector<std::shared_ptr<StatementAST>>> statement_block
 %type <std::shared_ptr<StatementAST>> return_statment
 %type <std::shared_ptr<StatementAST>> branch_statment
+%type <std::shared_ptr<AssignmentAST>> assignment_statement
 
 %%
 program:
@@ -69,13 +71,11 @@ exp: exp '+' exp    { $$ = std::make_shared<BinOpAST>('+', $1, $3); }
    | IDENT          { $$ = std::make_shared<VariableExprAST>($1); }
 
 funcdef: FUNC IDENT '(' param_names ')' '{' statement_block '}' {
-   // std::vector<std::shared_ptr<StatementAST>> statements;
-   // statements.push_back($7);
+   std::cout << "constructing function: " << $2 << std::endl;
    $$ = std::make_shared<FuncDefAST>($2, $4, $7);
 };
 
-statement_block: { std::vector<std::shared_ptr<StatementAST>> statements; $$ = statements; }
-               | statement {
+statement_block: statement {
                   std::vector<std::shared_ptr<StatementAST>> statements;
                   statements.push_back($1);
                   $$ = statements;
@@ -88,6 +88,7 @@ statement_block: { std::vector<std::shared_ptr<StatementAST>> statements; $$ = s
 
 statement: return_statment { $$ = $1; }
          | branch_statment { $$ = $1; }
+         | assignment_statement { $$ = $1; }
 
 return_statment: RETURN exp ';' {
    $$ = std::make_shared<ReturnAST>($2);
@@ -102,6 +103,10 @@ branch_statment: IF '(' exp ')' '{' statement '}' {
       std::cout << "constructing if else" << std::endl;
       $$ = std::make_shared<BranchAST>($3, $6, $10);
    };
+
+assignment_statement: IDENT '=' exp ';' {
+   $$ = std::make_shared<AssignmentAST>($1, $3);
+};
 
 param_names: { $$ = std::vector<std::string>(); }
       | IDENT {

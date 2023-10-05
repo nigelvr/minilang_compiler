@@ -58,6 +58,14 @@ public:
    llvm::Value *emitllvm() override;
 };
 
+class AssignmentAST : public StatementAST {
+public:
+   AssignmentAST(std::string ident, std::shared_ptr<ExprAST> expr);
+   std::string ident;
+   std::shared_ptr<ExprAST> expr;
+   llvm::Value *emitllvm() override;
+};
+
 class FuncDefAST : public AST {
 public:
    // FuncDefAST(std::string name, std::vector<std::string> param_names, std::shared_ptr<StatementAST> statement);

@@ -22,6 +22,14 @@ extern std::unique_ptr<llvm::IRBuilder<>> builder;
 extern std::map<std::string, llvm::AllocaInst *> NamedValues;
 extern std::unique_ptr<llvm::legacy::FunctionPassManager> FPM;
 
+/**
+ * Helpers
+*/
+llvm::AllocaInst *make_alloca(llvm::Function *F, llvm::StringRef varname) {
+  llvm::IRBuilder<> tmp_builder(&F->getEntryBlock(), F->getEntryBlock().begin());
+  return tmp_builder.CreateAlloca(llvm::Type::getDoubleTy(context), nullptr, varname);
+}
+
 AST::~AST() {}
 
 /**
@@ -131,6 +139,18 @@ llvm::Value *BranchAST::emitllvm() {
   return nullptr;
 }
 
+/**
+ * Assignment
+*/
+AssignmentAST::AssignmentAST(std::string ident, std::shared_ptr<ExprAST> expr) {
+  this->ident = ident;
+  this->expr = expr;
+}
+
+llvm::Value *AssignmentAST::emitllvm() {
+  return nullptr;
+}
+
 FuncDefAST::FuncDefAST(std::string name, std::vector<std::string> param_names, std::vector<std::shared_ptr<StatementAST>> statements) {
   this->name = name;
   this->param_names = param_names;
@@ -163,14 +183,12 @@ llvm::Value *FuncDefAST::emitllvm() {
   // stack allocation for arguments
   NamedValues.clear();
   for (auto &Arg : F->args()) {
-      llvm::IRBuilder<> tmp_builder(&F->getEntryBlock(), F->getEntryBlock().begin());
-      llvm::AllocaInst *alloca = tmp_builder.CreateAlloca(llvm::Type::getDoubleTy(context), nullptr, Arg.getName());
+      llvm::AllocaInst *alloca = make_alloca(F, Arg.getName());
       builder->CreateStore(&Arg, alloca);
       NamedValues[std::string(Arg.getName())] = alloca;
   }
 
   // run the return statement
-  // this->statements.at(0)->emitllvm();
   for (auto &S : this->statements) {
     S->emitllvm();
   }

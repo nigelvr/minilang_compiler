@@ -1,6 +1,6 @@
 CXX   = clang++
 LLVM_FLAGS=$(shell llvm-config --cxxflags --libs engine) 
-CXXFLAGS = -g -Wall -std=c++11 $(LLVM_FLAGS) -Wno-unused-but-set-variable -Wno-unused-command-line-argument -Wno-deprecated-register -Wno-register 
+CXXFLAGS = -g -Wall $(LLVM_FLAGS) -Wno-unused-but-set-variable -Wno-unused-command-line-argument -Wno-deprecated-register -Wno-register 
 CPPOBJ = ast main minidriver emitter
 SOBJ =  parser lexer
 FILES = $(addsuffix .cpp, $(CPPOBJ))
@@ -20,7 +20,7 @@ $(TARGET): $(FILES)
 
 
 parser: miniparser.yy
-	bison -d -v miniparser.yy
+	bison -d -v -Wcounterexamples miniparser.yy
 	$(CXX) $(CXXFLAGS) -c -o parser.o miniparser.tab.cc
 
 lexer: minilexer.l
