@@ -30,10 +30,10 @@ void init_llvm_objects() {
    builder = std::make_unique<llvm::IRBuilder<>>(context);
    FPM = std::make_unique<llvm::legacy::FunctionPassManager>(mymodule.get());
 
-   //FPM->add(llvm::createInstructionCombiningPass()); // peephole
-   //FPM->add(llvm::createReassociatePass());
-   //FPM->add(llvm::createGVNPass()); // eliminate common subexpressions
-   //FPM->add(llvm::createCFGSimplificationPass()); // simplify cfg
+   FPM->add(llvm::createInstructionCombiningPass()); // peephole
+   FPM->add(llvm::createReassociatePass());
+   FPM->add(llvm::createGVNPass()); // eliminate common subexpressions
+   FPM->add(llvm::createCFGSimplificationPass()); // simplify cfg
    FPM->doInitialization();
 }
 

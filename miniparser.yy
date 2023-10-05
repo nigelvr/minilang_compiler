@@ -90,7 +90,6 @@ param_values: { $$ = std::vector<std::shared_ptr<ExprAST>>(); }
       };
 
 funcdef: FUNC IDENT '(' param_names ')' '{' statement_block '}' {
-   std::cout << "constructing function: " << $2 << std::endl;
    $$ = std::make_shared<FuncDefAST>($2, $4, $7);
 };
 
@@ -114,12 +113,10 @@ return_statment: RETURN exp ';' {
 };
 
 branch_statment: IF '(' exp ')' '{' statement '}' {
-   std::cout << "constructing simple if" << std::endl;
    $$ = std::make_shared<BranchAST>($3, $6, nullptr);
    }
    |
    IF '(' exp ')' '{' statement '}' ELSE '{' statement '}' {
-      std::cout << "constructing if else" << std::endl;
       $$ = std::make_shared<BranchAST>($3, $6, $10);
    };
 

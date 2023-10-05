@@ -41,7 +41,6 @@ NumberAST::NumberAST(double value) {
 }
 
 llvm::Value *NumberAST::emitllvm() {
-  std::cout << "NumberAST::emitllvm" << std::endl;
   return llvm::ConstantFP::get(context, llvm::APFloat(this->value));
 }
 
@@ -152,7 +151,6 @@ llvm::Value *BranchAST::emitllvm() {
 
   // elseconseq
   if (!this->elseconseq) {
-    std::cout << "not emitting elseconseq" << std::endl;
     return nullptr;
   }
   this->elseconseq->emitllvm();

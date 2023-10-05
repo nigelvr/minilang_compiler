@@ -17,7 +17,6 @@ int MiniCompiler::Driver::parse() {
 
 void MiniCompiler::Driver::set_funcdef(std::shared_ptr<FuncDefAST> funcdef) {
    this->funcdef = funcdef;
-   std::cout << "set driver funcdef: " << funcdef.get() << std::endl;
 }
 
 llvm::Value *MiniCompiler::Driver::compile_program() {

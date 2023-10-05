@@ -1,3 +1,5 @@
 # minilang compiler
 
-Compiler for a mini imperative programming language, targetting LLVM.
+Compiler for a mini imperative programming language, targetting LLVM. WIP
+
+
