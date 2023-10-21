@@ -41,6 +41,7 @@ using namespace std;
 ")"     { return yytext[0]; }
 
 "return" { return token::RETURN; }
+"while" { return token::WHILE; }
 "func" { return token::FUNC; }
 "else" { return token::ELSE; }
 "if" { return token::IF; }

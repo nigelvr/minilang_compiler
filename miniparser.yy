@@ -31,6 +31,7 @@ namespace MiniCompiler {
 
 %token END 0 "end of file"
 %token RETURN
+%token WHILE
 %token FUNC
 %token ELSE
 %token IF
@@ -52,6 +53,7 @@ namespace MiniCompiler {
 %type <std::shared_ptr<StatementAST>> return_statment
 %type <std::shared_ptr<StatementAST>> branch_statment
 %type <std::shared_ptr<AssignmentAST>> assignment_statement
+%type <std::shared_ptr<WhileLoopAST>> while_statement
 %type <std::vector<std::shared_ptr<ExprAST>>> param_values
 
 %%
@@ -107,21 +109,27 @@ statement_block: statement {
 statement: return_statment { $$ = $1; }
          | branch_statment { $$ = $1; }
          | assignment_statement { $$ = $1; }
+         | while_statement { $$ = $1; }
 
 return_statment: RETURN exp ';' {
    $$ = std::make_shared<ReturnAST>($2);
 };
 
-branch_statment: IF '(' exp ')' '{' statement '}' {
-   $$ = std::make_shared<BranchAST>($3, $6, nullptr);
+branch_statment: IF '(' exp ')' '{' statement_block '}' {
+   std::vector<std::shared_ptr<StatementAST>> statements;
+   $$ = std::make_shared<BranchAST>($3, $6, statements);
    }
    |
-   IF '(' exp ')' '{' statement '}' ELSE '{' statement '}' {
+   IF '(' exp ')' '{' statement_block '}' ELSE '{' statement_block '}' {
       $$ = std::make_shared<BranchAST>($3, $6, $10);
    };
 
 assignment_statement: IDENT '=' exp ';' {
    $$ = std::make_shared<AssignmentAST>($1, $3);
+};
+
+while_statement: WHILE '(' exp ')' '{' statement_block '}' {
+   $$ = std::make_shared<WhileLoopAST>($3, $6);
 };
 
 param_names: { $$ = std::vector<std::string>(); }

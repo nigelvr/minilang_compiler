@@ -1,4 +1,4 @@
-CXX   = clang++
+CXX   = clang++-18
 LLVM_FLAGS=$(shell llvm-config --cxxflags --libs engine) 
 CXXFLAGS = -g -Wall $(LLVM_FLAGS) -Wno-unused-but-set-variable -Wno-unused-command-line-argument -Wno-deprecated-register -Wno-register 
 CPPOBJ = ast main minidriver emitter

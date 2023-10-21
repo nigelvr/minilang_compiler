@@ -74,8 +74,8 @@ llvm::Value *BinOpAST::emitllvm()
       case BinOpType::DIV:
         return builder->CreateFDiv(lv, rv, "divtmp");
       case BinOpType::LT:
-        temp = builder->CreateFCmpULT(lv, rv, "cmp_lt_tmp");
-        return builder->CreateUIToFP(temp, llvm::Type::getDoubleTy(context), "cmttmp_lt_double");
+        return builder->CreateFCmpULT(lv, rv, "cmp_lt_tmp");
+        // return builder->CreateUIToFP(temp, llvm::Type::getDoubleTy(context), "cmttmp_lt_double");
       case BinOpType::EQ:
         temp = builder->CreateFCmpUEQ(lv, rv, "cmp_eq_tmp");
         return builder->CreateUIToFP(temp, llvm::Type::getDoubleTy(context), "cmttmp_eq_double");
@@ -97,6 +97,7 @@ llvm::Value *VariableExprAST::emitllvm() {
     std::cerr << "could not access variable " << this->name << std::endl;
     return nullptr;
   }
+  std::cout << "emitting CreateLoad: " << this->name << std::endl;
   return builder->CreateLoad(v->getAllocatedType(), v, this->name.c_str());
 }
 
@@ -123,7 +124,8 @@ llvm::Value *ReturnAST::emitllvm() {
 /**
  * Branch, i.e. If statement
 */
-BranchAST::BranchAST(std::shared_ptr<ExprAST> cond, std::shared_ptr<StatementAST> ifconseq, std::shared_ptr<StatementAST> elseconseq) {
+BranchAST::BranchAST(std::shared_ptr<ExprAST> cond, std::vector<std::shared_ptr<StatementAST>> ifconseq,
+    std::vector<std::shared_ptr<StatementAST>> elseconseq) {
   this->cond = cond;
   this->ifconseq = ifconseq;
   this->elseconseq = elseconseq;
@@ -146,14 +148,18 @@ llvm::Value *BranchAST::emitllvm() {
 
   // ifconseq
   builder->SetInsertPoint(ifconseq_block);
-  this->ifconseq->emitllvm();
+  for (auto &S : this->ifconseq) {
+    S->emitllvm();
+  }
   builder->SetInsertPoint(elseconseq_block);
 
   // elseconseq
-  if (!this->elseconseq) {
+  if (this->elseconseq.size() == 0) {
     return nullptr;
   }
-  this->elseconseq->emitllvm();
+  for (auto &S : this->elseconseq) {
+    S->emitllvm();
+  }
 
   return nullptr;
 }
@@ -168,9 +174,16 @@ AssignmentAST::AssignmentAST(std::string ident, std::shared_ptr<ExprAST> expr) {
 
 llvm::Value *AssignmentAST::emitllvm() {
   llvm::Function *F = builder->GetInsertBlock()->getParent();
-  llvm::AllocaInst *alloca = make_alloca(F, this->ident);
+  llvm::AllocaInst *alloca;
+  
+  if (!NamedValues.count(this->ident)) {
+	alloca = make_alloca(F, this->ident);
+	NamedValues[this->ident] = alloca;
+  } else {
+	  alloca = NamedValues[this->ident];
+  }
+
   builder->CreateStore(this->expr->emitllvm(), alloca);
-  NamedValues[this->ident] = alloca;
   return alloca;
 }
 
@@ -183,8 +196,28 @@ WhileLoopAST::WhileLoopAST(std::shared_ptr<ExprAST> cond, std::vector<std::share
 }
 
 llvm::Value *WhileLoopAST::emitllvm() {
+
+  llvm::Function *F = builder->GetInsertBlock()->getParent();
+
+  llvm::BasicBlock *whiletop = llvm::BasicBlock::Create(context, "whiletop", F);
+  llvm::BasicBlock *whilebody = llvm::BasicBlock::Create(context, "whilebody", F);
+  llvm::BasicBlock *whiledone = llvm::BasicBlock::Create(context, "whiledone", F);
+
+  builder->CreateBr(whiletop);
+
+  builder->SetInsertPoint(whiletop);
   llvm::Value *condv = this->cond->emitllvm();
-  condv = builder->CreateFCmpONE(condv, llvm::ConstantFP::get(context, llvm::APFloat(0.0)), "ifcond");
+  // condv = builder->CreateFCmpONE(condv, llvm::ConstantFP::get(context, llvm::APFloat(0.0)), "whilecond");
+  builder->CreateCondBr(condv, whilebody, whiledone);
+  
+  builder->SetInsertPoint(whilebody);
+  for (auto &S : this->statements) {
+    S->emitllvm();
+  }
+  builder->CreateBr(whiletop);
+
+  builder->SetInsertPoint(whiledone);
+
   return nullptr;
 }
 

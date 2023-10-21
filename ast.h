@@ -68,10 +68,11 @@ public:
 
 class BranchAST : public StatementAST {
 public:
-   BranchAST(std::shared_ptr<ExprAST> cond, std::shared_ptr<StatementAST> ifconseq, std::shared_ptr<StatementAST> elseconseq);
+   BranchAST(std::shared_ptr<ExprAST> cond, std::vector<std::shared_ptr<StatementAST>> ifconseq,
+         std::vector<std::shared_ptr<StatementAST>> elseconseq);
    std::shared_ptr<ExprAST> cond;
-   std::shared_ptr<StatementAST> ifconseq;
-   std::shared_ptr<StatementAST> elseconseq;
+   std::vector<std::shared_ptr<StatementAST>> ifconseq;
+   std::vector<std::shared_ptr<StatementAST>> elseconseq;
    llvm::Value *emitllvm() override;
 };
 
