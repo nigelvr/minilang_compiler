@@ -3,11 +3,13 @@ func fib(n) {
     fibp2 = 1;
     idx = 0;
     ret = 0;
-    while (idx < n) {
+    while (idx < n-1) {
         ret = fibp1 + fibp2;
         tmp = fibp2;
         fibp2 = ret;
         fibp1 = tmp;
         idx = idx + 1;
     }
+    return ret;
 }
+

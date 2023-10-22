@@ -42,3 +42,62 @@ elseconseq:                                       ; preds = %entry
   br label %common.ret
 }
 ```
+
+iterative fibonacci
+
+```
+func fib(n) {
+    fibp1 = 1;
+    fibp2 = 1;
+    idx = 0;
+    ret = 0;
+    while (idx < n-1) {
+        ret = fibp1 + fibp2;
+        tmp = fibp2;
+        fibp2 = ret;
+        fibp1 = tmp;
+        idx = idx + 1;
+    }
+    return ret;
+}
+```
+
+output
+
+```
+define double @fib(double %n) {
+entry:
+  %ret = alloca double, align 8
+  %idx = alloca double, align 8
+  %fibp2 = alloca double, align 8
+  %fibp1 = alloca double, align 8
+  %n1 = alloca double, align 8
+  store double %n, ptr %n1, align 8
+  store double 1.000000e+00, ptr %fibp1, align 8
+  store double 1.000000e+00, ptr %fibp2, align 8
+  store double 0.000000e+00, ptr %idx, align 8
+  store double 0.000000e+00, ptr %ret, align 8
+  br label %whiletop
+
+whiletop:                                         ; preds = %whilebody, %entry
+  %fibp25 = phi double [ %addtmp, %whilebody ], [ 1.000000e+00, %entry ]
+  %fibp14 = phi double [ %fibp25, %whilebody ], [ 1.000000e+00, %entry ]
+  %ret11 = phi double [ %addtmp, %whilebody ], [ 0.000000e+00, %entry ]
+  %idx9 = phi double [ %addtmp10, %whilebody ], [ 0.000000e+00, %entry ]
+  %subtmp = fadd double %n, -1.000000e+00
+  %cmp_lt_tmp = fcmp ult double %idx9, %subtmp
+  br i1 %cmp_lt_tmp, label %whilebody, label %whiledone
+
+whilebody:                                        ; preds = %whiletop
+  %addtmp = fadd double %fibp14, %fibp25
+  store double %addtmp, ptr %ret, align 8
+  store double %addtmp, ptr %fibp2, align 8
+  store double %fibp25, ptr %fibp1, align 8
+  %addtmp10 = fadd double %idx9, 1.000000e+00
+  store double %addtmp10, ptr %idx, align 8
+  br label %whiletop
+
+whiledone:                                        ; preds = %whiletop
+  ret double %ret11
+}
+```
